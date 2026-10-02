@@ -1,0 +1,32 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Use Case - Tiep nhan bao hanh" id="uc1">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" page="1" pageWidth="1169" pageHeight="827">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="sys" value="Hệ thống tiếp nhận &amp; phân loại yêu cầu bảo hành – Mekong Mobile" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fillColor=none;" vertex="1" parent="1"><mxGeometry x="200" y="20" width="720" height="720" as="geometry"/></mxCell>
+        <mxCell id="a1" value="A1&lt;br&gt;Nhân viên tiếp nhận" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1"><mxGeometry x="60" y="290" width="30" height="60" as="geometry"/></mxCell>
+        <mxCell id="a2" value="A2&lt;br&gt;Quản lý TTBH" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1"><mxGeometry x="1000" y="570" width="30" height="60" as="geometry"/></mxCell>
+        <mxCell id="uc1" value="UC01&lt;br&gt;Tra cứu khách theo SĐT" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="230" y="60" width="220" height="70" as="geometry"/></mxCell>
+        <mxCell id="uc2" value="UC02&lt;br&gt;Tạo phiếu bảo hành" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1"><mxGeometry x="230" y="260" width="220" height="80" as="geometry"/></mxCell>
+        <mxCell id="uc3" value="UC03&lt;br&gt;Kiểm tra tình trạng bảo hành" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="640" y="60" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="uc4" value="UC04&lt;br&gt;Phân loại nhóm sự cố &amp; ưu tiên" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="640" y="160" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="uc5" value="UC05&lt;br&gt;Sinh hạn cam kết (SLA)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="640" y="260" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="uc6" value="UC06&lt;br&gt;Phê duyệt phiếu chưa xác minh BH" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="620" y="400" width="260" height="80" as="geometry"/></mxCell>
+        <mxCell id="uc7" value="UC07&lt;br&gt;Xem DS phiếu sắp/quá hạn" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="640" y="510" width="240" height="70" as="geometry"/></mxCell>
+        <mxCell id="uc8" value="UC08&lt;br&gt;Xem lịch sử chuyển trạng thái" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1"><mxGeometry x="330" y="620" width="260" height="70" as="geometry"/></mxCell>
+        <mxCell id="e1" style="endArrow=none;html=1;" edge="1" parent="1" source="a1" target="uc1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="endArrow=none;html=1;" edge="1" parent="1" source="a1" target="uc2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="endArrow=none;html=1;" edge="1" parent="1" source="a1" target="uc8"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="endArrow=none;html=1;" edge="1" parent="1" source="a2" target="uc6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="endArrow=none;html=1;" edge="1" parent="1" source="a2" target="uc7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="endArrow=none;html=1;" edge="1" parent="1" source="a2" target="uc8"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="i1" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;" edge="1" parent="1" source="uc2" target="uc1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="i2" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;" edge="1" parent="1" source="uc2" target="uc3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="i3" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;" edge="1" parent="1" source="uc2" target="uc4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="i4" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;" edge="1" parent="1" source="uc2" target="uc5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="x1" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="endArrow=open;dashed=1;html=1;" edge="1" parent="1" source="uc6" target="uc2"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
