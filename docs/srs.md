@@ -46,43 +46,43 @@ Họ và tên: INTHAXAY Vilaiphone – 237480201IS06 – Track SE
 | US07 | Là quản lý, tôi muốn xem danh sách phiếu sắp đến hạn/quá hạn để kịp xử lý | SHOULD |
 | US08 | Là nhân viên/quản lý, tôi muốn xem lịch sử chuyển trạng thái của phiếu để truy vết | COULD |
 
-### 2.3 Tiêu chí chấp nhận (20 GWT – 9 ngoại lệ, đánh dấu ⚠)
+### 2.3 Tiêu chí chấp nhận (20 GWT – 9 ngoại lệ, đánh dấu )
 
 **US01**
 - GWT-01: Given SĐT đã có trong hệ thống, When tìm theo SĐT, Then hiển thị thông tin khách và các thiết bị đã đăng ký.
-- GWT-02 ⚠: Given SĐT chưa có, When tìm, Then báo "không tìm thấy" và gợi ý tạo khách mới.
+- GWT-02 : Given SĐT chưa có, When tìm, Then báo "không tìm thấy" và gợi ý tạo khách mới.
 
 **US02**
 - GWT-03: Given khách và thiết bị hợp lệ, When nhập đủ mô tả lỗi và lưu, Then tạo phiếu trạng thái MỚI.
-- GWT-04 ⚠: Given IMEI không đủ 15 chữ số (hoặc serial không hợp lệ), When lưu, Then từ chối và báo lỗi tại trường IMEI/serial.
-- GWT-05 ⚠: Given mô tả lỗi để trống, When lưu, Then từ chối và yêu cầu nhập mô tả.
+- GWT-04 : Given IMEI không đủ 15 chữ số (hoặc serial không hợp lệ), When lưu, Then từ chối và báo lỗi tại trường IMEI/serial.
+- GWT-05 : Given mô tả lỗi để trống, When lưu, Then từ chối và yêu cầu nhập mô tả.
 
 **US03**
 - GWT-06: Given ngày tiếp nhận ≤ ngày hết bảo hành (= ngày mua + số tháng bảo hành, tính theo tháng lịch; cuối tháng thì lấy ngày cuối của tháng đích), When tạo phiếu, Then đánh dấu CÒN BẢO HÀNH (đúng ngày hết hạn vẫn là còn).
 - GWT-07: Given ngày tiếp nhận > ngày hết bảo hành, When tạo phiếu, Then đánh dấu HẾT BẢO HÀNH.
-- GWT-08 ⚠: Given ngày mua sau ngày tiếp nhận, When lưu, Then từ chối và báo ngày mua không hợp lệ.
+- GWT-08 : Given ngày mua sau ngày tiếp nhận, When lưu, Then từ chối và báo ngày mua không hợp lệ.
 
 **US04**
 - GWT-09: Given thiếu ngày mua, When lưu phiếu, Then tình trạng bảo hành = CHƯA XÁC MINH, phiếu mang cờ "chưa xác minh bảo hành" và hiện trong danh sách chờ quản lý.
-- GWT-10 ⚠: Given quản lý từ chối phê duyệt (có nhập lý do), When xác nhận, Then phiếu giữ cờ, ghi lý do từ chối vào lịch sử.
+- GWT-10 : Given quản lý từ chối phê duyệt (có nhập lý do), When xác nhận, Then phiếu giữ cờ, ghi lý do từ chối vào lịch sử.
 - GWT-20: Given quản lý phê duyệt phiếu có cờ, When xác nhận, Then bỏ cờ, ghi người duyệt và thời điểm vào lịch sử.
 
 **US05**
 - GWT-11: Given mô tả lỗi chứa từ khóa của một nhóm sự cố (bảng 3.1), When tạo phiếu, Then gán nhóm và mức ưu tiên tương ứng.
-- GWT-12 ⚠: Given mô tả không khớp nhóm nào, When tạo phiếu, Then gán nhóm "Khác" và ưu tiên TRUNG_BÌNH.
+- GWT-12 : Given mô tả không khớp nhóm nào, When tạo phiếu, Then gán nhóm "Khác" và ưu tiên TRUNG_BÌNH.
 
 **US06**
 - GWT-13: Given ưu tiên CAO, When tạo phiếu, Then hạn = thời điểm tiếp nhận + 1 ngày làm việc (24h).
 - GWT-14: Given ưu tiên THẤP, When tạo phiếu, Then hạn = thời điểm tiếp nhận + 5 ngày làm việc (120h).
-- GWT-15 ⚠: Given phiếu tiếp nhận vào thứ Bảy/Chủ nhật, When sinh hạn, Then tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc.
+- GWT-15 : Given phiếu tiếp nhận vào thứ Bảy/Chủ nhật, When sinh hạn, Then tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc.
 
 **US07**
 - GWT-16: Given có phiếu còn ≤ 8 giờ (giờ thực) đến hạn hoặc đã quá hạn, When quản lý mở danh sách, Then hiển thị, quá hạn tô nổi bật.
-- GWT-17 ⚠: Given không có phiếu nào sắp/quá hạn, When mở danh sách, Then hiện thông báo "Không có phiếu cần chú ý".
+- GWT-17 : Given không có phiếu nào sắp/quá hạn, When mở danh sách, Then hiện thông báo "Không có phiếu cần chú ý".
 
 **US08**
 - GWT-18: Given phiếu tồn tại, When xem lịch sử, Then hiển thị mọi lần đổi trạng thái theo thời gian.
-- GWT-19 ⚠: Given mã phiếu không tồn tại, When xem lịch sử, Then trả lỗi 404.
+- GWT-19 : Given mã phiếu không tồn tại, When xem lịch sử, Then trả lỗi 404.
 
 ### 2.4 Use Case (8 UC – 2 actor)
 
