@@ -1,225 +1,147 @@
-# SRS – Tiếp nhận và phân loại yêu cầu bảo hành (Mekong Mobile Luống 2)
+# SRS rút gọn – Luồng L2: Tiếp nhận và phân loại yêu cầu bảo hành
 
-Họ và tên: INTHAXAY Vilaiphone – 237480201IS06 – Track SE
+Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 
----
+## 1.1. Giới thiệu, phạm vi và bảng thuật ngữ
 
-## 1. Giới thiệu
+**Bối cảnh.** Trung tâm bảo hành (TTBH) của Mekong Mobile tiếp nhận điện thoại khách mang đến bảo hành. Smart CRM cần ghi nhận mỗi yêu cầu thành phiếu bảo hành, xác định còn/hết bảo hành, phân loại sự cố và cam kết hạn xử lý theo mức ưu tiên (24h / 72h / 120h theo case study).
 
-### 1.1 Mục đích
-Đặc tả yêu cầu cho luồng **tiếp nhận và phân loại yêu cầu bảo hành** tại trung tâm bảo hành Mekong Mobile.
+**Luồng nghiệp vụ đã chọn: L2 – Tiếp nhận và phân loại yêu cầu bảo hành.** Trong phạm vi: tra cứu khách theo SĐT → tạo phiếu bảo hành kèm thiết bị và mô tả lỗi → kiểm tra tình trạng bảo hành → phân loại nhóm sự cố và mức ưu tiên → sinh hạn SLA → phiếu ở trạng thái MỚI; Quản lý TTBH duyệt phiếu chưa xác minh bảo hành, theo dõi phiếu sắp/quá hạn và xem lịch sử trạng thái.
 
-### 1.2 Phạm vi
-- **Trong phạm vi:** tra cứu khách theo SĐT → tạo phiếu kèm thiết bị và mô tả lỗi → kiểm tra bảo hành → phân loại nhóm sự cố và mức ưu tiên → sinh hạn cam kết (SLA) → phiếu ở trạng thái MỚI, sẵn sàng bàn giao cho quản lý.
-- **Ngoài phạm vi:** phân công kỹ thuật viên theo tay nghề/khối lượng (L4); quản lý tồn kho linh kiện (L5); khảo sát hài lòng sau đóng phiếu (L8).
+**Chủ ý KHÔNG làm (WON'T):** phân công kỹ thuật viên (luồng L4); quản lý tồn kho linh kiện (L5); khảo sát hài lòng sau khi đóng phiếu (L8); gửi SMS/Zalo cho khách; tính ngày lễ vào hạn SLA; triển khai và hạ tầng.
 
-### 1.3 Thuật ngữ
-| Thuật ngữ | Ý nghĩa |
-|---|---|
-| Phiếu | Phiếu yêu cầu bảo hành (ticket) |
-| SLA | Hạn cam kết xử lý phiếu |
-| Ngày làm việc | Thứ Hai – thứ Sáu, chưa tính ngày lễ |
-| IMEI/Serial | Mã định danh thiết bị. IMEI: đúng 15 chữ số. Serial: 5–30 ký tự chữ/số (dùng khi thiết bị không có IMEI) |
-| GWT | Given – When – Then |
-
----
-
-## 2. Mô tả tổng quan
-
-### 2.1 Actor
-| Actor | Vai trò |
-|---|---|
-| A1 – Nhân viên tiếp nhận | Actor chính: tra cứu khách, tạo phiếu |
-| A2 – Quản lý trung tâm bảo hành | Actor phụ: phê duyệt phiếu chưa xác minh, xem danh sách phiếu sắp/quá hạn |
-
-### 2.2 User Story (8 story – 5 MUST)
-
-| ID | Story | Ưu tiên |
+| Thuật ngữ | Ý nghĩa | Tên trong ERD / API |
 |---|---|---|
-| US01 | Là nhân viên tiếp nhận, tôi muốn tra cứu khách theo SĐT để không nhập lại thông tin khách cũ | MUST |
-| US02 | Là nhân viên tiếp nhận, tôi muốn tạo phiếu kèm thiết bị (serial/IMEI) và mô tả lỗi để ghi nhận yêu cầu | MUST |
-| US03 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự kiểm tra còn/hết bảo hành theo ngày mua để báo đúng cho khách | MUST |
-| US04 | Là quản lý, tôi muốn phiếu thiếu ngày mua bị đánh dấu "chưa xác minh bảo hành" để tôi phê duyệt | SHOULD |
-| US05 | Là nhân viên tiếp nhận, tôi muốn hệ thống phân loại nhóm sự cố và mức ưu tiên để phiếu được xử lý đúng thứ tự | MUST |
-| US06 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự sinh hạn cam kết theo mức ưu tiên để hẹn đúng với khách | MUST |
-| US07 | Là quản lý, tôi muốn xem danh sách phiếu sắp đến hạn/quá hạn để kịp xử lý | SHOULD |
-| US08 | Là nhân viên/quản lý, tôi muốn xem lịch sử chuyển trạng thái của phiếu để truy vết | COULD |
+| Phiếu bảo hành (gọi tắt: phiếu) | Một yêu cầu bảo hành đã được ghi nhận | ticket |
+| Mã phiếu | Mã hiển thị của phiếu, dạng BH-0001 | ticket.code |
+| Khách hàng | Người mang thiết bị đến; định danh bằng số điện thoại (SĐT) | customer |
+| Thiết bị | Điện thoại/máy của khách hàng cần bảo hành | device |
+| IMEI / Serial | Mã định danh thiết bị. IMEI: đúng 15 chữ số. Serial: 5–30 ký tự chữ/số (dùng khi máy không có IMEI) | device.imei, device.serial_no |
+| Nhóm sự cố | Loại lỗi xác định theo bảng phân loại 1.3.2 | issue_category |
+| Mức ưu tiên | CAO / TRUNG_BINH / THAP | ticket.priority |
+| Thời điểm tiếp nhận | Ngày giờ phiếu được tạo | ticket.received_at |
+| Hạn SLA | Thời điểm cam kết xử lý xong phiếu, chốt lúc tạo phiếu | ticket.sla_due_at |
+| Ngày làm việc | Thứ Hai – thứ Sáu, chưa tính ngày lễ | — |
+| Tình trạng bảo hành | CÒN BẢO HÀNH / HẾT BẢO HÀNH / CHƯA XÁC MINH | ticket.warranty_status |
+| Cờ "chưa xác minh bảo hành" | Đánh dấu phiếu thiếu ngày mua, chờ Quản lý TTBH duyệt | ticket.is_unverified |
+| Trạng thái phiếu | Vòng đời phiếu; luồng L2 chỉ tạo trạng thái MỚI | ticket.status |
+| Lịch sử trạng thái | Nhật ký mọi lần tạo phiếu, đổi trạng thái, duyệt/từ chối bảo hành | ticket_status_log |
+| Nhân viên tiếp nhận (A1) | Người dùng tạo phiếu tại quầy | app_user.role = TIEP_NHAN |
+| Quản lý TTBH (A2) | Quản lý trung tâm bảo hành | app_user.role = QUAN_LY |
+| GWT | Tiêu chí chấp nhận dạng Given – When – Then | — |
 
-### 2.3 Tiêu chí chấp nhận (20 GWT – 9 ngoại lệ, đánh dấu )
+## 1.2. Các bên liên quan và vai trò
 
-**US01**
-- GWT-01: Given SĐT đã có trong hệ thống, When tìm theo SĐT, Then hiển thị thông tin khách và các thiết bị đã đăng ký.
-- GWT-02 : Given SĐT chưa có, When tìm, Then báo "không tìm thấy" và gợi ý tạo khách mới.
+| Vai trò | Được làm | Không được làm |
+|---|---|---|
+| A1 – Nhân viên tiếp nhận (dùng hệ thống) | Tra cứu và tạo khách hàng; tạo phiếu bảo hành; xem chi tiết phiếu và lịch sử trạng thái | Duyệt/từ chối bảo hành; xem tab "Chờ duyệt bảo hành"; sửa tay mức ưu tiên hoặc hạn SLA |
+| A2 – Quản lý TTBH (dùng hệ thống) | Duyệt/từ chối phiếu chưa xác minh bảo hành; xem danh sách phiếu sắp/quá hạn; xem lịch sử trạng thái | Sửa hạn SLA đã chốt; xóa phiếu hoặc dòng lịch sử |
+| Khách hàng (gián tiếp) | Cung cấp SĐT, thiết bị, mô tả lỗi; nhận mã phiếu và hạn SLA từ A1 | Không đăng nhập hệ thống |
+| Kỹ thuật viên (luồng L4) | — ngoài phạm vi — | Không dùng các chức năng của L2 |
 
-**US02**
-- GWT-03: Given khách và thiết bị hợp lệ, When nhập đủ mô tả lỗi và lưu, Then tạo phiếu trạng thái MỚI.
-- GWT-04 : Given IMEI không đủ 15 chữ số (hoặc serial không hợp lệ), When lưu, Then từ chối và báo lỗi tại trường IMEI/serial.
-- GWT-05 : Given mô tả lỗi để trống, When lưu, Then từ chối và yêu cầu nhập mô tả.
+## 1.3. Yêu cầu chức năng và User Story
 
-**US03**
-- GWT-06: Given ngày tiếp nhận ≤ ngày hết bảo hành (= ngày mua + số tháng bảo hành, tính theo tháng lịch; cuối tháng thì lấy ngày cuối của tháng đích), When tạo phiếu, Then đánh dấu CÒN BẢO HÀNH (đúng ngày hết hạn vẫn là còn).
-- GWT-07: Given ngày tiếp nhận > ngày hết bảo hành, When tạo phiếu, Then đánh dấu HẾT BẢO HÀNH.
-- GWT-08 : Given ngày mua sau ngày tiếp nhận, When lưu, Then từ chối và báo ngày mua không hợp lệ.
+| Mã | Yêu cầu chức năng (kiểm chứng được) |
+|---|---|
+| FR-01 | Hệ thống tra cứu khách hàng theo SĐT và hiển thị họ tên cùng các thiết bị đã đăng ký. |
+| FR-02 | Khi SĐT chưa có, hệ thống cho phép tạo khách hàng mới (họ tên + SĐT); một SĐT chỉ thuộc một khách hàng. |
+| FR-03 | Hệ thống tạo phiếu bảo hành kèm thiết bị (IMEI hoặc Serial, model, ngày mua, số tháng bảo hành) và mô tả lỗi; trạng thái phiếu ban đầu là MỚI; IMEI đúng 15 chữ số, Serial 5–30 ký tự chữ/số. |
+| FR-04 | Hệ thống tính ngày hết bảo hành = ngày mua + số tháng bảo hành (tháng lịch); thời điểm tiếp nhận ≤ ngày hết bảo hành → CÒN BẢO HÀNH, ngược lại → HẾT BẢO HÀNH. |
+| FR-05 | Khi thiếu ngày mua, hệ thống đặt tình trạng bảo hành = CHƯA XÁC MINH, gắn cờ "chưa xác minh bảo hành" và đưa phiếu vào danh sách chờ Quản lý TTBH duyệt. |
+| FR-06 | Quản lý TTBH duyệt hoặc từ chối phiếu có cờ. Duyệt → CÒN BẢO HÀNH, bỏ cờ. Từ chối → giữ cờ, bắt buộc nhập lý do. Cả hai ghi vào lịch sử trạng thái. |
+| FR-07 | Hệ thống gán nhóm sự cố và mức ưu tiên cho phiếu theo bảng phân loại 1.3.2. |
+| FR-08 | Hệ thống sinh hạn SLA theo mức ưu tiên: CAO +1, TRUNG_BINH +3, THAP +5 ngày làm việc (BR-05). |
+| FR-09 | Hệ thống liệt kê phiếu chưa xong có hạn SLA còn ≤ 8 giờ hoặc đã quá hạn, sắp theo hạn SLA tăng dần, 20 phiếu/trang; phiếu quá hạn tô nổi bật. |
+| FR-10 | Hệ thống ghi và hiển thị lịch sử trạng thái của phiếu theo thời gian (thời điểm, hành động, trạng thái từ → đến, người thực hiện, ghi chú). |
 
-**US04**
-- GWT-09: Given thiếu ngày mua, When lưu phiếu, Then tình trạng bảo hành = CHƯA XÁC MINH, phiếu mang cờ "chưa xác minh bảo hành" và hiện trong danh sách chờ quản lý.
-- GWT-10 : Given quản lý từ chối phê duyệt (có nhập lý do), When xác nhận, Then phiếu giữ cờ, ghi lý do từ chối vào lịch sử.
-- GWT-20: Given quản lý phê duyệt phiếu có cờ, When xác nhận, Then bỏ cờ, ghi người duyệt và thời điểm vào lịch sử.
+### 1.3.1. User Story (7 story · 4 MUST · 2 SHOULD · 1 COULD)
 
-**US05**
-- GWT-11: Given mô tả lỗi chứa từ khóa của một nhóm sự cố (bảng 3.1), When tạo phiếu, Then gán nhóm và mức ưu tiên tương ứng.
-- GWT-12 : Given mô tả không khớp nhóm nào, When tạo phiếu, Then gán nhóm "Khác" và ưu tiên TRUNG_BÌNH.
-
-**US06**
-- GWT-13: Given ưu tiên CAO, When tạo phiếu, Then hạn = thời điểm tiếp nhận + 1 ngày làm việc (24h).
-- GWT-14: Given ưu tiên THẤP, When tạo phiếu, Then hạn = thời điểm tiếp nhận + 5 ngày làm việc (120h).
-- GWT-15 : Given phiếu tiếp nhận vào thứ Bảy/Chủ nhật, When sinh hạn, Then tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc.
-
-**US07**
-- GWT-16: Given có phiếu còn ≤ 8 giờ (giờ thực) đến hạn hoặc đã quá hạn, When quản lý mở danh sách, Then hiển thị, quá hạn tô nổi bật.
-- GWT-17 : Given không có phiếu nào sắp/quá hạn, When mở danh sách, Then hiện thông báo "Không có phiếu cần chú ý".
-
-**US08**
-- GWT-18: Given phiếu tồn tại, When xem lịch sử, Then hiển thị mọi lần đổi trạng thái theo thời gian.
-- GWT-19 : Given mã phiếu không tồn tại, When xem lịch sử, Then trả lỗi 404.
-
-### 2.4 Use Case (8 UC – 2 actor)
-
-| UC | Tên | Actor | Quan hệ |
+| Mã | User Story | MoSCoW | Tiêu chí chấp nhận |
 |---|---|---|---|
-| UC01 | Tra cứu khách theo SĐT | A1 | |
-| UC02 | Tạo phiếu bảo hành | A1 | include UC01, UC03, UC04, UC05 |
-| UC03 | Kiểm tra tình trạng bảo hành | (hệ thống) | được UC02 include |
-| UC04 | Phân loại nhóm sự cố và ưu tiên | (hệ thống) | được UC02 include |
-| UC05 | Sinh hạn cam kết (SLA) | (hệ thống) | được UC02 include |
-| UC06 | Phê duyệt phiếu chưa xác minh bảo hành | A2 | extend UC02 |
-| UC07 | Xem danh sách phiếu sắp/quá hạn | A2 | |
-| UC08 | Xem lịch sử chuyển trạng thái | A1, A2 | |
+| US01 | Là nhân viên tiếp nhận, tôi muốn tra cứu khách hàng theo SĐT để không nhập lại thông tin khách cũ. | MUST | GWT-01, 02 |
+| US02 | Là nhân viên tiếp nhận, tôi muốn tạo phiếu bảo hành kèm thiết bị (IMEI/Serial) và mô tả lỗi để ghi nhận yêu cầu. | MUST | GWT-03, 04, 05 |
+| US03 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự kiểm tra còn/hết bảo hành theo ngày mua để báo đúng cho khách. | MUST | GWT-06, 07, 08 |
+| US04 | Là Quản lý TTBH, tôi muốn phiếu thiếu ngày mua được gắn cờ "chưa xác minh bảo hành" để tôi duyệt hoặc từ chối. | SHOULD | GWT-09, 10, 20 |
+| US05 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự phân loại nhóm sự cố, gán mức ưu tiên và sinh hạn SLA theo mức ưu tiên đó để hẹn đúng thời hạn với khách. | MUST | GWT-11 … 15 |
+| US06 | Là Quản lý TTBH, tôi muốn xem danh sách phiếu sắp đến hạn/quá hạn SLA để kịp xử lý. | SHOULD | GWT-16, 17 |
+| US07 | Là nhân viên tiếp nhận hoặc Quản lý TTBH, tôi muốn xem lịch sử trạng thái của phiếu để truy vết. | COULD | GWT-18, 19 |
 
-#### Đặc tả chi tiết UC02 – Tạo phiếu bảo hành
-- **Actor:** A1. **Tiền điều kiện:** A1 đã đăng nhập. **Hậu điều kiện:** phiếu trạng thái MỚI, có nhóm sự cố, ưu tiên, SLA, tình trạng bảo hành.
-- **Luồng chính:**
-  1. A1 nhập SĐT, hệ thống thực hiện UC01 và hiển thị khách.
-  2. A1 nhập serial/IMEI, ngày mua, mô tả lỗi.
-  3. Hệ thống kiểm tra dữ liệu hợp lệ.
-  4. Hệ thống thực hiện UC03, UC04, UC05.
-  5. Hệ thống lưu phiếu (MỚI) và ghi lịch sử trạng thái đầu tiên.
-  6. Hệ thống hiển thị mã phiếu, nhóm, ưu tiên, hạn SLA.
-- **Luồng ngoại lệ:**
-  - E1 (bước 1): khách chưa tồn tại → A1 tạo khách mới rồi quay lại bước 2.
-  - E2 (bước 3): IMEI/serial sai định dạng hoặc ngày mua ở tương lai → báo lỗi, quay lại bước 2.
-  - E3 (bước 3): mô tả lỗi trống → báo lỗi, quay lại bước 2.
+### 1.3.2. Bảng phân loại nhóm sự cố và mức ưu tiên (FR-07, BR-04)
 
-#### Đặc tả chi tiết UC05 – Sinh hạn cam kết (SLA)
-- **Actor:** hệ thống (kích hoạt từ UC02). **Tiền điều kiện:** đã có mức ưu tiên. **Hậu điều kiện:** phiếu có `sla_due_at`.
-- **Luồng chính:**
-  1. Lấy thời điểm tiếp nhận và mức ưu tiên.
-  2. Tra số ngày làm việc: CAO = 1 (24h), TRUNG_BÌNH = 3 (72h), THẤP = 5 (120h).
-  3. Cộng số ngày làm việc (T2–T6), giữ nguyên giờ tiếp nhận.
-  4. Lưu `sla_due_at`.
-- **Luồng ngoại lệ:**
-  - E1 (bước 1): tiếp nhận vào thứ Bảy/Chủ nhật → coi như tiếp nhận lúc 08:00 thứ Hai kế tiếp, rồi thực hiện bước 2–4.
-  - E2 (bước 2): mức ưu tiên chưa xác định → dùng mặc định TRUNG_BÌNH (3 ngày làm việc).
-
----
-
-## 3. Yêu cầu chức năng (10 FR)
-
-| Mã | Yêu cầu |
-|---|---|
-| FR-01 | Hệ thống cho phép tra cứu khách theo SĐT |
-| FR-02 | Hệ thống gợi ý khách đã tồn tại; nếu chưa có cho phép tạo khách mới |
-| FR-03 | Hệ thống tạo phiếu kèm serial/IMEI, ngày mua, mô tả lỗi; trạng thái ban đầu là MỚI. IMEI phải đủ 15 chữ số; serial 5–30 ký tự chữ/số |
-| FR-04 | Hệ thống tính ngày hết bảo hành = ngày mua + số tháng bảo hành của sản phẩm (tháng lịch); ngày tiếp nhận ≤ ngày hết bảo hành → CÒN, ngược lại → HẾT |
-| FR-05 | Hệ thống đặt tình trạng bảo hành = CHƯA XÁC MINH và gắn cờ "chưa xác minh bảo hành" khi thiếu ngày mua |
-| FR-06 | Quản lý phê duyệt hoặc từ chối phiếu có cờ; từ chối bắt buộc ghi lý do |
-| FR-07 | Hệ thống gán nhóm sự cố và mức ưu tiên cho phiếu theo bảng 3.1 |
-| FR-08 | Hệ thống sinh hạn SLA theo ưu tiên (CAO 1 ngày/24h, TRUNG_BÌNH 3 ngày/72h, THẤP 5 ngày/120h; chỉ tính ngày làm việc T2–T6) |
-| FR-09 | Hệ thống liệt kê phiếu sắp đến hạn (còn ≤ 8 giờ thực) và quá hạn |
-| FR-10 | Hệ thống ghi và hiển thị lịch sử chuyển trạng thái của phiếu |
-
-### 3.1 Bảng phân loại nhóm sự cố và ưu tiên (FR-07)
-
-Khớp từ khóa trong mô tả lỗi (không phân biệt hoa/thường), xét từ trên xuống, nhóm đầu tiên khớp thì dừng.
-
-| Nhóm | Từ khóa ví dụ | Ưu tiên |
-|---|---|---|
-| Phần cứng | màn hình, vỡ, không lên nguồn, pin, sạc, camera, loa | CAO |
-| Phần mềm | treo, đơ, lag, bootloop, lỗi ứng dụng, cập nhật | TRUNG_BÌNH |
-| Kết nối | wifi, sóng, bluetooth, SIM | TRUNG_BÌNH |
-| Phụ kiện/Ngoại hình | ốp, trầy xước, nút bấm | THẤP |
-| Khác | (không khớp nhóm nào) | TRUNG_BÌNH |
-
----
-
-## 4. Yêu cầu phi chức năng (7 NFR có ngưỡng số)
-
-| Mã | Loại | Yêu cầu |
-|---|---|---|
-| NFR-01 | Hiệu năng | Tra cứu khách theo SĐT phản hồi ≤ 2 giây (p95) với ≥ 500 phiếu |
-| NFR-02 | Hiệu năng | Tạo phiếu (gồm kiểm tra bảo hành, phân loại, SLA) hoàn tất ≤ 3 giây |
-| NFR-03 | Chính xác | Tính SLA và bảo hành đúng 100% trên bộ ≥ 10 test case đã định nghĩa |
-| NFR-04 | Đồng thời | Hỗ trợ ≥ 20 người dùng đồng thời không lỗi |
-| NFR-05 | Truy vết | 100% thay đổi trạng thái được ghi log kèm thời điểm và người thực hiện |
-| NFR-06 | Bảo mật | Phiên đăng nhập hết hạn sau 30 phút không hoạt động (trả 401); 2 vai trò (A1, A2) phân quyền riêng |
-| NFR-07 | Hiệu năng | Mở danh sách phiếu sắp/quá hạn phản hồi ≤ 2 giây (p95) với ≥ 500 phiếu |
-
----
-
-## 5. Ràng buộc và giả định
-
-- Stack: Node.js + Express, PostgreSQL, React/HTML đơn giản.
-- Dữ liệu mẫu: ≥ 500 phiếu trích từ `tickets_history.csv`.
-- **Giả định cần xác nhận với GV:** "24h/72h/120h" quy đổi thành 1/3/5 ngày làm việc (T2–T6, giữ nguyên giờ tiếp nhận), chưa tính ngày lễ.
-- Quy tắc còn bảo hành: ngày tiếp nhận ≤ ngày mua + số tháng bảo hành (tháng lịch) thì còn bảo hành.
-
----
-
-## 6. Ma trận truy vết (0 ô trống)
-
-| User Story | MoSCoW | Use Case | FR | NFR | GWT | Test |
-|---|---|---|---|---|---|---|
-| US01 | MUST | UC01 | FR-01, FR-02 | NFR-01 | GWT-01, 02 | TC-01, 02 |
-| US02 | MUST | UC02 | FR-03 | NFR-02, 04 | GWT-03, 04, 05 | TC-03, 04, 05 |
-| US03 | MUST | UC03 | FR-04 | NFR-03 | GWT-06, 07, 08 | TC-06, 07, 08 |
-| US04 | SHOULD | UC06 | FR-05, FR-06 | NFR-06 | GWT-09, 10, 20 | TC-09, 10, 20 |
-| US05 | MUST | UC04 | FR-07 | NFR-03 | GWT-11, 12 | TC-11, 12 |
-| US06 | MUST | UC05 | FR-08 | NFR-03 | GWT-13, 14, 15 | TC-13, 14, 15 |
-| US07 | SHOULD | UC07 | FR-09 | NFR-07 | GWT-16, 17 | TC-16, 17 |
-| US08 | COULD | UC08 | FR-10 | NFR-05 | GWT-18, 19 | TC-18, 19 |
-
----
-
-## Phụ lục – API contract (mẫu track SE)
-
-Mọi endpoint trả **401** khi phiên hết hạn (NFR-06).
-
-| Method | Endpoint | Mô tả | Thành công | Lỗi |
+| Thứ tự | Nhóm sự cố | Từ khóa trong mô tả lỗi | Mức ưu tiên | Hạn SLA |
 |---|---|---|---|---|
-| GET | `/api/customers?phone=` | Tra cứu khách (FR-01) | 200 | 404 chưa có khách |
-| POST | `/api/customers` | Tạo khách mới (FR-02) | 201 | 400 dữ liệu sai |
-| POST | `/api/tickets` | Tạo phiếu, trả nhóm/ưu tiên/SLA/tình trạng bảo hành (FR-03,04,05,07,08) | 201 | 400 IMEI/serial/ngày mua/mô tả sai |
-| GET | `/api/tickets?warranty=unverified` | Danh sách phiếu chờ quản lý duyệt (FR-05) | 200 | 403 sai vai trò |
-| PATCH | `/api/tickets/{id}/warranty-review` | Quản lý duyệt/từ chối (FR-06) | 200 | 400 từ chối thiếu lý do, 403 sai vai trò, 404 |
-| GET | `/api/tickets?due=soon\|overdue` | Danh sách sắp/quá hạn (FR-09) | 200 | 403 sai vai trò |
-| GET | `/api/tickets/{id}/status-log` | Lịch sử trạng thái (FR-10) | 200 | 404 |
+| 1 | Phần cứng | màn hình, vỡ, không lên nguồn, pin, sạc, camera, loa | CAO | +1 ngày làm việc (24h) |
+| 2 | Phần mềm | treo, đơ, lag, bootloop, lỗi ứng dụng, cập nhật | TRUNG_BINH | +3 ngày làm việc (72h) |
+| 3 | Kết nối | wifi, sóng, bluetooth, SIM | TRUNG_BINH | +3 ngày làm việc (72h) |
+| 4 | Phụ kiện/Ngoại hình | ốp, trầy xước, nút bấm | THAP | +5 ngày làm việc (120h) |
+| — | Khác | (không khớp nhóm nào) | TRUNG_BINH | +3 ngày làm việc (72h) |
 
-Ví dụ `POST /api/tickets`:
+### 1.3.3. Tiêu chí chấp nhận (Given – When – Then)
 
-```json
-// request
-{ "customerId": 12, "imei": "356938035643809", "purchaseDate": "2026-03-15",
-  "issueDescription": "Màn hình không lên nguồn" }
-// response 201 (tiếp nhận thứ Sáu 02/10/2026 09:00, ưu tiên CAO = +1 ngày làm việc)
-{ "id": "BH-0001", "status": "MOI", "warranty": "CON_BAO_HANH",
-  "category": "Phần cứng", "priority": "CAO", "slaDueAt": "2026-10-05T09:00:00+07:00" }
-```
+| Mã | US | Given → When → Then (rút gọn) |
+|---|---|---|
+| GWT-01 | US01 | SĐT đã có → tra cứu → hiển thị họ tên khách và các thiết bị đã đăng ký. |
+| GWT-02 | US01 | (ngoại lệ) SĐT chưa có → tra cứu → báo "Không tìm thấy khách hàng với SĐT này" và hiện nút "Tạo khách hàng mới". |
+| GWT-03 | US02 | Khách và thiết bị hợp lệ, có mô tả lỗi → lưu → tạo phiếu trạng thái MỚI, có mã phiếu. |
+| GWT-04 | US02 | (ngoại lệ) IMEI không đủ 15 chữ số / Serial sai định dạng → lưu → từ chối, báo lỗi tại trường IMEI/Serial. |
+| GWT-05 | US02 | (ngoại lệ) Mô tả lỗi trống → lưu → từ chối, báo "Vui lòng nhập mô tả lỗi". |
+| GWT-06 | US03 | Thời điểm tiếp nhận ≤ ngày hết bảo hành (đúng ngày hết hạn vẫn tính là còn) → tạo phiếu → CÒN BẢO HÀNH. |
+| GWT-07 | US03 | Thời điểm tiếp nhận > ngày hết bảo hành → tạo phiếu → HẾT BẢO HÀNH. |
+| GWT-08 | US03 | (ngoại lệ) Ngày mua sau ngày tiếp nhận → lưu → từ chối, báo "Ngày mua không được sau ngày tiếp nhận". |
+| GWT-09 | US04 | Thiếu ngày mua → lưu → CHƯA XÁC MINH, gắn cờ, phiếu hiện trong tab "Chờ duyệt bảo hành". |
+| GWT-10 | US04 | (ngoại lệ) Quản lý TTBH bấm Từ chối mà không nhập lý do → báo "Phải nhập lý do khi từ chối"; có lý do → giữ cờ, ghi lý do vào lịch sử. |
+| GWT-20 | US04 | Quản lý TTBH duyệt phiếu có cờ → CÒN BẢO HÀNH, bỏ cờ, ghi người duyệt và thời điểm vào lịch sử. |
+| GWT-11 | US05 | Mô tả lỗi chứa từ khóa của một nhóm (bảng 1.3.2) → tạo phiếu → gán nhóm và mức ưu tiên tương ứng. |
+| GWT-12 | US05 | (ngoại lệ) Mô tả không khớp nhóm nào → tạo phiếu → nhóm "Khác", TRUNG_BINH. |
+| GWT-13 | US05 | Mức ưu tiên CAO, tiếp nhận thứ Sáu 02/10/2026 09:00 → hạn SLA thứ Hai 05/10/2026 09:00. |
+| GWT-14 | US05 | Mức ưu tiên THAP, tiếp nhận thứ Hai 05/10/2026 10:00 → hạn SLA thứ Hai 12/10/2026 10:00. |
+| GWT-15 | US05 | (ngoại lệ) Tiếp nhận thứ Bảy/Chủ nhật → hạn SLA tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc. |
+| GWT-16 | US06 | Có phiếu còn ≤ 8 giờ đến hạn hoặc đã quá hạn → Quản lý TTBH mở danh sách → hiển thị, phiếu quá hạn tô đỏ. |
+| GWT-17 | US06 | (ngoại lệ) Không có phiếu nào sắp/quá hạn → mở danh sách → hiện "Không có phiếu cần chú ý". |
+| GWT-18 | US07 | Phiếu tồn tại → xem lịch sử → hiển thị mọi dòng lịch sử theo thời gian tăng dần. |
+| GWT-19 | US07 | (ngoại lệ) Mã phiếu không tồn tại → xem → báo "Không tìm thấy phiếu" (HTTP 404). |
 
-Ví dụ `PATCH /api/tickets/{id}/warranty-review`:
+## 1.4. Yêu cầu phi chức năng (mọi yêu cầu có ngưỡng số)
 
-```json
-// request
-{ "decision": "REJECTED", "reason": "Không có hóa đơn mua hàng" }
-// response 200
-{ "id": "BH-0002", "warranty": "CHUA_XAC_MINH", "flagged": true }
-```
+| Mã | Loại | Yêu cầu và ngưỡng | Cách đo |
+|---|---|---|---|
+| NFR-01 | Hiệu năng | Tra cứu khách theo SĐT phản hồi ≤ 2 giây (p95) khi CSDL có ≥ 500 phiếu | Đo 100 request bằng script, lấy p95 |
+| NFR-02 | Hiệu năng | Tạo phiếu (gồm kiểm tra bảo hành, phân loại, SLA, ghi lịch sử) hoàn tất ≤ 3 giây | Đo thời gian POST /api/tickets |
+| NFR-03 | Chính xác | Tính SLA và tình trạng bảo hành đúng 100% trên bộ ≥ 10 test case đã định nghĩa (TC-06…08, TC-13…15 và các ca biên) | Unit test các Rule |
+| NFR-04 | Đồng thời | ≥ 20 người dùng đồng thời không phát sinh lỗi hoặc trùng mã phiếu | Load test 20 user ảo, 5 phút |
+| NFR-05 | Truy vết | 100% lần tạo phiếu / đổi trạng thái / duyệt bảo hành có dòng lịch sử kèm thời điểm và người thực hiện | So số phiếu với số dòng TAO_PHIEU |
+| NFR-06 | Bảo mật | Phiên hết hạn sau 30 phút không hoạt động (trả 401); 2 vai trò A1, A2 phân quyền riêng (sai vai trò trả 403) | Test API với token hết hạn / sai vai trò |
+| NFR-07 | Hiệu năng | Mở danh sách phiếu sắp/quá hạn phản hồi ≤ 2 giây (p95) khi CSDL có ≥ 500 phiếu | Đo 100 request, lấy p95 |
+
+## 1.5. Ràng buộc và quy tắc nghiệp vụ
+
+| Mã | Quy tắc | Nguồn |
+|---|---|---|
+| BR-01 | Thiết bị phải có IMEI (đúng 15 chữ số) hoặc Serial (5–30 ký tự chữ/số); IMEI và Serial không trùng giữa hai thiết bị. | Phân tích của em |
+| BR-02 | Ngày hết bảo hành = ngày mua + số tháng bảo hành theo tháng lịch (ngày không tồn tại ở tháng đích → lấy ngày cuối tháng). Ngày mua không được sau ngày tiếp nhận. | Case study + phân tích |
+| BR-03 | Thiếu ngày mua → CHƯA XÁC MINH + cờ. Chỉ Quản lý TTBH được duyệt (→ CÒN BẢO HÀNH, bỏ cờ) hoặc từ chối (giữ cờ). | Phân tích của em |
+| BR-04 | Phân loại: so khớp từ khóa không phân biệt hoa/thường, xét theo thứ tự bảng 1.3.2, khớp nhóm đầu tiên thì dừng; không khớp → "Khác", TRUNG_BINH. | Phân tích của em |
+| BR-05 | Hạn SLA: CAO 24h, TRUNG_BINH 72h, THAP 120h, quy đổi thành 1/3/5 ngày làm việc, giữ nguyên giờ tiếp nhận; tiếp nhận thứ Bảy/Chủ nhật → tính từ 08:00 thứ Hai. Hạn SLA chốt lúc tạo phiếu, không tự tính lại. | Case study (24h/72h/120h); cách quy đổi là giả định |
+| BR-06 | Từ chối bảo hành bắt buộc nhập lý do; lý do lưu vào lịch sử trạng thái. | Phân tích của em |
+| BR-07 | Một SĐT chỉ thuộc một khách hàng. | Phân tích của em |
+
+**Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16, React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ.
+
+## 1.6. Bảng truy vết yêu cầu
+
+| FR | User Story | Use case | MoSCoW | NFR | Bảng dữ liệu | Màn hình |
+|---|---|---|---|---|---|---|
+| FR-01 | US01 | UC01 | MUST | NFR-01 | customer, device | M1 |
+| FR-02 | US01 | UC01 | MUST | NFR-01 | customer | M1 |
+| FR-03 | US02 | UC02 | MUST | NFR-02, 04, 05 | ticket, device, ticket_status_log, app_user | M1 |
+| FR-04 | US03 | UC03 | MUST | NFR-03 | device, ticket | M1, M3 |
+| FR-05 | US04 | UC03, UC06 | SHOULD | NFR-06 | ticket | M1, M2 |
+| FR-06 | US04 | UC06 | SHOULD | NFR-05, 06 | ticket, ticket_status_log, app_user | M3 |
+| FR-07 | US05 | UC04 | MUST | NFR-03 | issue_category, ticket | M1 |
+| FR-08 | US05 | UC05 | MUST | NFR-03 | ticket | M1, M2 |
+| FR-09 | US06 | UC07 | SHOULD | NFR-07 | ticket, device, customer | M2 |
+| FR-10 | US07 | UC08 | COULD | NFR-05 | ticket_status_log, app_user | M3 |
+| FR-11 Phân công kỹ thuật viên | — | — | WON'T | — | — | ngoài phạm vi (L4) |
+| FR-12 Gửi SMS/Zalo cho khách | — | — | WON'T | — | — | ngoài phạm vi |
+
+Đọc theo hàng: mọi FR mức MUST/SHOULD/COULD đều có User Story, use case, bảng dữ liệu và màn hình (0 ô trống; hàng WON'T được phép trống). Đọc theo cột "Bảng dữ liệu": cả 6 bảng của ERD đều xuất hiện ít nhất một lần.
