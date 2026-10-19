@@ -7,21 +7,43 @@ Luồng **L2**: tra cứu khách theo SĐT → tạo phiếu bảo hành (IMEI/S
 
 **Ngoài phạm vi (WON'T):** phân công kỹ thuật viên (L4), tồn kho linh kiện (L5), khảo sát hài lòng (L8), gửi SMS/Zalo, ngày lễ trong SLA, triển khai/hạ tầng.
 
-## 2. Cấu trúc repo và cách mở file thiết kế
+## 2. Yêu cầu môi trường và cách chạy
+- **Node.js ≥ 22.13** (đã thử với Node.js 24 LTS) và npm đi kèm. Kiểm tra: `node -v`
+- **CSDL:** SQLite qua module có sẵn `node:sqlite` – **không cần cài máy chủ CSDL** (xem TD-04 trong `docs/thay-doi-thiet-ke.md`)
+- **Biến môi trường:** xem `.env.example` (`PORT`, `DB_PATH`, `SESSION_TIMEOUT_MINUTES`)
+
+Các bước, mỗi bước một lệnh (chạy ở thư mục gốc của repo):
+
+```bash
+npm install                 # 1. cài thư viện theo package-lock.json
+cp .env.example .env        # 2. tạo tệp cấu hình (Windows PowerShell: Copy-Item .env.example .env)
+npm run migrate             # 3. dựng CSDL từ trạng thái trống + nạp dữ liệu mẫu (chạy lại không nhân đôi)
+npm test                    # 4. chạy bộ kiểm thử (không cần CSDL thật, tự dựng CSDL trong bộ nhớ)
+npm start                   # 5. chạy API tại http://localhost:3000
+```
+
+Kiểm tra hệ thống đã chạy đúng (mở terminal thứ hai):
+
+```bash
+curl -s http://localhost:3000/health                              # {"status":"ok"}
+curl -s "http://localhost:3000/api/customers?phone=0901234567"    # khách Lê Cường từ dữ liệu mẫu
+```
+
+## 3. Cấu trúc repo
 | Đường dẫn | Nội dung |
 |---|---|
-| `docs/srs.md` | SRS rút gọn (Mục 1 của bài nộp) |
-| `docs/usecase.drawio` | Use Case Diagram – mở bằng https://app.diagrams.net (File → Open) |
-| `docs/architecture.drawio` | Sơ đồ kiến trúc 4 lớp |
-| `docs/erd.drawio` | ERD 6 bảng |
-| `docs/wireframe.drawio` | Wireframe M1, M2, M3 (3 trang) · ảnh: `docs/wireframe.png` |
-| `docs/export/*.png` | Ảnh xuất từ các file .drawio, chèn trong PDF |
-| `docs/api-contract.md` | API contract (track SE) |
-| `docs/ai-disclosure.md` | Bảng khai báo sử dụng công cụ AI |
-| `db/schema.sql` | SQL DDL skeleton (PostgreSQL 16) |
-| `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bản đã nộp trên E-learning |
-
-Chạy thử DDL: `createdb smartcrm && psql -d smartcrm -f db/schema.sql`
+| `src/backend/routes/` | Lớp API – nhận HTTP, đổi mã nghiệp vụ sang mã HTTP |
+| `src/backend/validators/` | Kiểm tra định dạng dữ liệu vào |
+| `src/backend/services/` | Lớp nghiệp vụ – không chứa dấu vết HTTP |
+| `src/backend/rules/` | WarrantyRule, ClassificationRule, SlaCalculator (hàm thuần) |
+| `src/backend/repositories/` | Lớp truy cập dữ liệu – nơi duy nhất viết SQL |
+| `src/backend/middleware/` | Xác thực phiên, phân quyền (NFR-06) |
+| `src/frontend/` | Giao diện M1–M3 (buổi 10) |
+| `migrations/`, `seeds/` | Tạo bảng và dữ liệu mẫu cho SQLite |
+| `tests/` | Bộ kiểm thử (`node --test`) |
+| `docs/` | SRS, sơ đồ .drawio, nhật ký thay đổi thiết kế, khai báo AI |
+| `db/schema.sql` | DDL PostgreSQL gốc của BT1 (giữ để đối chiếu) |
+| `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bài tập 1 đã nộp |
 
 ## Liên kết xem / sửa từng thành phần
 
@@ -38,5 +60,16 @@ Chạy thử DDL: `createdb smartcrm && psql -d smartcrm -f db/schema.sql`
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 6. Stack dự kiến
-Node.js + Express (API) · PostgreSQL 16 · React (giao diện). Mã nguồn bắt đầu từ Bài tập 2 (`src/`, `tests/` hiện còn rỗng).
+## 6. Trạng thái hiện tại (buổi 8 – 19/10/2026)
+- [x] Ghi quyết định điều chỉnh thiết kế theo phản hồi BT1 (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-04)
+- [x] Khung `src/` theo sơ đồ kiến trúc 4 lớp
+- [x] Migration tạo 6 bảng theo ERD BT1 + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi
+- [x] CRUD **khách hàng** qua 3 lớp routes → services → repositories (`/api/customers`)
+- [x] 3 kiểm thử PASS: luồng đúng · dữ liệu sai · quy tắc BR-07
+- [ ] CRUD **phiếu bảo hành** + quy tắc WarrantyRule, ClassificationRule, SlaCalculator (trước buổi 10)
+- [ ] Kiểm thử giá trị biên cho SLA và bảo hành (GWT-06, GWT-13 → GWT-15)
+- [ ] Xác thực phiên 30 phút, phân quyền A1/A2 (NFR-06)
+- [ ] Ba màn hình M1–M3 có ba trạng thái đang tải · rỗng · lỗi (buổi 10)
+- Ghi chú: dùng SQLite thay PostgreSQL vì máy chưa cài PostgreSQL (TD-04)
+
+Quy ước commit: Conventional Commits – `feat`, `fix`, `docs`, `chore`, `refactor`, `test` (TD-03).
