@@ -125,7 +125,7 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | BR-06 | Từ chối bảo hành bắt buộc nhập lý do; lý do lưu vào lịch sử trạng thái. | Phân tích của em |
 | BR-07 | Một SĐT chỉ thuộc một khách hàng. | Phân tích của em |
 
-**Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16, React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ.
+**Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16 theo thiết kế (prototype BT2 dùng SQLite – xem TD-04), React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ.
 
 ## 1.6. Bảng truy vết yêu cầu
 
