@@ -61,7 +61,7 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | US01 | Là nhân viên tiếp nhận, tôi muốn tra cứu khách hàng theo SĐT để không nhập lại thông tin khách cũ. | MUST | GWT-01, 02 |
 | US02 | Là nhân viên tiếp nhận, tôi muốn tạo phiếu bảo hành kèm thiết bị (IMEI/Serial) và mô tả lỗi để ghi nhận yêu cầu. | MUST | GWT-03, 04, 05 |
 | US03 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự kiểm tra còn/hết bảo hành theo ngày mua để báo đúng cho khách. | MUST | GWT-06, 07, 08 |
-| US04 | Là Quản lý TTBH, tôi muốn phiếu thiếu ngày mua được gắn cờ "chưa xác minh bảo hành" để tôi duyệt hoặc từ chối. | SHOULD | GWT-09, 10, 20 |
+| US04 | Là Quản lý TTBH, tôi muốn phiếu thiếu ngày mua được gắn cờ "chưa xác minh bảo hành" để tôi duyệt hoặc từ chối. | SHOULD | GWT-09, 10, 20 (GWT-20 bổ sung sau, xem TD-02) |
 | US05 | Là nhân viên tiếp nhận, tôi muốn hệ thống tự phân loại nhóm sự cố, gán mức ưu tiên và sinh hạn SLA theo mức ưu tiên đó để hẹn đúng thời hạn với khách. | MUST | GWT-11 … 15 |
 | US06 | Là Quản lý TTBH, tôi muốn xem danh sách phiếu sắp đến hạn/quá hạn SLA để kịp xử lý. | SHOULD | GWT-16, 17 |
 | US07 | Là nhân viên tiếp nhận hoặc Quản lý TTBH, tôi muốn xem lịch sử trạng thái của phiếu để truy vết. | COULD | GWT-18, 19 |
@@ -90,7 +90,6 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | GWT-08 | US03 | (ngoại lệ) Ngày mua sau ngày tiếp nhận → lưu → từ chối, báo "Ngày mua không được sau ngày tiếp nhận". |
 | GWT-09 | US04 | Thiếu ngày mua → lưu → CHƯA XÁC MINH, gắn cờ, phiếu hiện trong tab "Chờ duyệt bảo hành". |
 | GWT-10 | US04 | (ngoại lệ) Quản lý TTBH bấm Từ chối mà không nhập lý do → báo "Phải nhập lý do khi từ chối"; có lý do → giữ cờ, ghi lý do vào lịch sử. |
-| GWT-20 | US04 | Quản lý TTBH duyệt phiếu có cờ → CÒN BẢO HÀNH, bỏ cờ, ghi người duyệt và thời điểm vào lịch sử. |
 | GWT-11 | US05 | Mô tả lỗi chứa từ khóa của một nhóm (bảng 1.3.2) → tạo phiếu → gán nhóm và mức ưu tiên tương ứng. |
 | GWT-12 | US05 | (ngoại lệ) Mô tả không khớp nhóm nào → tạo phiếu → nhóm "Khác", TRUNG_BINH. |
 | GWT-13 | US05 | Mức ưu tiên CAO, tiếp nhận thứ Sáu 02/10/2026 09:00 → hạn SLA thứ Hai 05/10/2026 09:00. |
@@ -100,6 +99,7 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | GWT-17 | US06 | (ngoại lệ) Không có phiếu nào sắp/quá hạn → mở danh sách → hiện "Không có phiếu cần chú ý". |
 | GWT-18 | US07 | Phiếu tồn tại → xem lịch sử → hiển thị mọi dòng lịch sử theo thời gian tăng dần. |
 | GWT-19 | US07 | (ngoại lệ) Mã phiếu không tồn tại → xem → báo "Không tìm thấy phiếu" (HTTP 404). |
+| GWT-20 | US04 | Quản lý TTBH duyệt phiếu có cờ → CÒN BẢO HÀNH, bỏ cờ, ghi người duyệt và thời điểm vào lịch sử. |
 
 ## 1.4. Yêu cầu phi chức năng (mọi yêu cầu có ngưỡng số)
 
