@@ -19,3 +19,8 @@
 - Quyết định      : SỬA cho các commit từ nay; GIỮ NGUYÊN lịch sử cũ
 - Lý do           : Các commit cũ đã push lên nhánh main và dev; viết lại lịch sử (rebase/force push) có thể làm hỏng repo và mất dấu vết đã chấm. Từ buổi 8 mọi commit theo Conventional Commits: feat, fix, docs, chore, refactor, test, kèm phạm vi khi cần, ví dụ feat(ticket): …, docs(srs): …
 - Ảnh hưởng       : Chỉ ảnh hưởng quy trình làm việc. Ghi quy ước vào README mục 6.
+
+### TD-04  Dùng SQLite thay PostgreSQL 16 cho prototype
+- Thay đổi gì     : CSDL của prototype dùng SQLite (module node:sqlite có sẵn trong Node.js ≥ 22.13) thay cho PostgreSQL 16 như thiết kế BT1. DDL được chuyển sang migrations/001_init.sql: BIGSERIAL → INTEGER PRIMARY KEY AUTOINCREMENT, TIMESTAMPTZ → TEXT (ISO 8601), BOOLEAN → INTEGER 0/1. Các CHECK dùng biểu thức chính quy (IMEI, Serial, SĐT) chuyển sang lớp validators/ vì SQLite không hỗ trợ ~ .
+- Vì sao           : Máy cá nhân chưa cài PostgreSQL; slide buổi 8 cho phép dùng SQLite làm phương án dự phòng. SQLite không cần cài máy chủ, không cần mật khẩu, nên người khác clone repo về là chạy được ngay (tiêu chí C1). Với khoảng 12 phiếu/ngày (NFR-04: ≥ 20 người dùng) SQLite vẫn đủ.
+- Ảnh hưởng       : migrations/001_init.sql, seeds/001_demo.sql, src/backend/db.js, .env.example (bỏ DB_HOST/DB_USER/DB_PASSWORD, thêm DB_PATH). Lập luận LL5 của BT1 vẫn giữ. db/schema.sql (bản PostgreSQL của BT1) giữ nguyên để đối chiếu. Partial index idx_ticket_open_sla (LL2, NFR-07) vẫn giữ vì SQLite hỗ trợ.
