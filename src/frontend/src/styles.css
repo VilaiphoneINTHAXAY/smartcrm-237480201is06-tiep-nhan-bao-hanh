@@ -21,6 +21,7 @@ fieldset { border:1px solid var(--line); border-radius:6px; margin-bottom:.75rem
 .table-wrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:8px; }
 table { width:100%; border-collapse:collapse; font-size:.9rem; } th, td { text-align:left; padding:.5rem .75rem; border-bottom:1px solid var(--line); vertical-align:top; }
 th { background:#eef2f7; white-space:nowrap; }
+td:first-child { white-space:nowrap; }
 tr.overdue { background:var(--danger-bg); } tr.overdue td { color:var(--danger); } tr.attention { background:var(--warn-bg); }
 .state { padding:1.25rem; border-radius:8px; margin-bottom:1rem; }
 .state-loading { background:var(--card); border:1px solid var(--line); }

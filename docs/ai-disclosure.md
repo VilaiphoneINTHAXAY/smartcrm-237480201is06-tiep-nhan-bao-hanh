@@ -13,7 +13,7 @@ INTHAXAY Vilaiphone – 237480201IS06 – 09/10/2026
 
 ---
 
-# Bảng khai báo sử dụng công cụ AI – Bài tập 2 (cập nhật buổi 8, 19/10/2026)
+# Bảng khai báo sử dụng công cụ AI – Bài tập 2 (cập nhật buổi 10, 23/10/2026)
 
 | Công cụ | Dùng vào việc gì | Áp dụng ở tệp / hàm nào | Em đã kiểm chứng thế nào |
 |---|---|---|---|
@@ -21,7 +21,10 @@ INTHAXAY Vilaiphone – 237480201IS06 – 09/10/2026
 | Claude (Anthropic) | Viết mã CRUD khách hàng tách 3 lớp và cơ chế đổi mã lỗi nghiệp vụ sang mã HTTP | `src/backend/routes/customer.routes.js`, `services/customer.service.js` (hàm `create`, `update`, `remove`, `findByPhone`), `repositories/customer.repository.js`, `validators/customer.validator.js`, `errors/AppError.js`, `app.js`, `server.js` | Gọi thử bằng curl: tra cứu SĐT 0901234567 trả đúng khách Lê Cường; gửi SĐT "123" bị từ chối 400 kèm tên trường `phone` (ảnh `docs/buoi8-curl.png`). Tìm `req.`, `res.`, `status(` trong thư mục services/ → không có (đạt S2). Đọc lại từng tệp theo luồng routes → service → repository |
 | Claude (Anthropic) | Gợi ý ba kiểm thử đầu tiên cho lớp service | `tests/customer.service.test.js` | Chạy `npm test`: 3/3 PASS (ảnh `docs/buoi8-test.png`). Kiểm thử dùng CSDL trong bộ nhớ (`:memory:`) nên không phụ thuộc dữ liệu trên máy em |
 | Claude (Anthropic) | Soạn nháp các mục TD-01 → TD-04 sau phản hồi BT1 | `docs/thay-doi-thiet-ke.md`, `docs/srs.md` (chuyển dòng GWT-20) | Đối chiếu từng mục với phản hồi của giảng viên trong bảng điểm BT1; kiểm GWT-01 → GWT-20 đã theo thứ tự mã |
-| — không dùng — | Cài Node.js, chạy lệnh, chụp ảnh kết quả, commit và push | Lịch sử commit nhánh `dev` | Không áp dụng |
+| Claude (Anthropic) | Viết ba quy tắc nghiệp vụ dạng hàm thuần và kiểm thử của chúng | `src/backend/rules/sla.rule.js` (`tinhHanSla`), `warranty.rule.js` (`kiemTraBaoHanh`, `tinhNgayHetHan`), `classification.rule.js` (`phanLoai`); `tests/sla.rule.test.js`, `warranty.rule.test.js`, `classification.rule.test.js` | Đối chiếu kết quả mong đợi của từng test với GWT-06 → GWT-15 và BR-02, BR-04, BR-05 trong `docs/srs.md`. Chạy `npm test` trên máy em: PASS hết. Test viết giờ kèm `+07:00` nên chạy trên máy múi giờ khác vẫn ra cùng kết quả |
+| Claude (Anthropic) | Viết CRUD phiếu bảo hành (ghép ba quy tắc khi tạo phiếu), hợp đồng dữ liệu `toTicketView`, đăng nhập và phiên 30 phút | `validators/ticket.validator.js`, `repositories/ticket.repository.js`, `device.repository.js`, `user.repository.js`, `services/ticket.service.js`, `ticket.contract.js`, `auth.service.js`, `middleware/auth.js`, `routes/ticket.routes.js`, `auth.routes.js`, `app.js`; `seeds/002_demo_password.sql`, `003_demo_devices.sql`; `tests/ticket.service.test.js`, `auth.service.test.js`, `api.test.js` | Chạy `npm run migrate` hai lần: không lỗi, số dòng giữ nguyên. Chạy `npm test`: PASS hết. Chạy thử trên giao diện: tạo phiếu cho SĐT 0987654321 → BH-000001, *Phần cứng · Cao*, *Chưa xác minh*, hạn SLA thứ Sáu 14:56 → thứ Hai 26/10 14:56 (đúng GWT-13). Đăng nhập `ql01` → từ chối không lý do bị chặn (GWT-10), duyệt → *Còn bảo hành* và có dòng lịch sử (GWT-20). Tìm `req`, `res`, `status(` trong services/ → chỉ có trong comment (đạt S2) |
+| Claude (Anthropic) | Viết giao diện React: lớp gọi API, thành phần ba trạng thái, ba màn hình M1–M3 và trang đăng nhập | `src/frontend/src/api/` (`client.js` …), `hooks/useApi.js`, `components/DataState.jsx`, `pages/` (M1 `ReceiveDevicePage`, M2 `TicketListPage`, M3 `TicketDetailPage`, `LoginPage`) | Mở http://localhost:5173 và làm hết luồng chính. Tắt backend rồi mở trang → hiện "Không kết nối được tới hệ thống…" kèm nút Thử lại. Nhập SĐT có chữ "SĐT" → hiện "Không tìm thấy khách hàng…" và nút tạo khách mới (GWT-02). Lọc trạng thái không có phiếu → hiện câu riêng kèm nút Xoá bộ lọc |
+| — không dùng — | Cài Node.js, chạy lệnh, chạy thử giao diện, chụp ảnh kết quả, commit và push | Lịch sử commit nhánh `dev` | Không áp dụng |
 
 Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ mã nguồn nộp ở Bài tập 2.
 
