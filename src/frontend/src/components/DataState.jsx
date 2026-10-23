@@ -12,6 +12,8 @@ export function DataState({ loading, error, data, empty, onRetry, children }) {
     return (
       <div className="state state-error" role="alert">
         <p><strong>Không tải được dữ liệu.</strong> {error.message}</p>
+        {/* Ghi giờ lần thử gần nhất: bấm Thử lại mà vẫn lỗi thì người dùng vẫn thấy hệ thống ĐÃ thử */}
+        <p className="muted">Lần thử gần nhất lúc {new Date().toLocaleTimeString('vi-VN')}</p>
         {onRetry && <button onClick={onRetry}>Thử lại</button>}
       </div>
     );
