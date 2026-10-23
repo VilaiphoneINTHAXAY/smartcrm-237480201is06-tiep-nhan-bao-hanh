@@ -10,24 +10,36 @@ Luồng **L2**: tra cứu khách theo SĐT → tạo phiếu bảo hành (IMEI/S
 ## 2. Yêu cầu môi trường và cách chạy
 - **Node.js ≥ 22.13** (đã thử với Node.js 24 LTS) và npm đi kèm. Kiểm tra: `node -v`
 - **CSDL:** SQLite qua module có sẵn `node:sqlite` – **không cần cài máy chủ CSDL** (xem TD-04 trong `docs/thay-doi-thiet-ke.md`)
-- **Biến môi trường:** xem `.env.example` (`PORT`, `DB_PATH`, `SESSION_TIMEOUT_MINUTES`)
+- **Biến môi trường:** backend xem `.env.example` (`PORT`, `DB_PATH`, `SESSION_TIMEOUT_MINUTES`, `FRONTEND_ORIGIN`); giao diện xem `src/frontend/.env.example` (`VITE_API_BASE_URL`)
 
-Các bước, mỗi bước một lệnh (chạy ở thư mục gốc của repo):
-
+### 2.1. Backend (API) – terminal thứ nhất, ở thư mục gốc của repo
 ```bash
 npm install                 # 1. cài thư viện theo package-lock.json
 cp .env.example .env        # 2. tạo tệp cấu hình (Windows PowerShell: Copy-Item .env.example .env)
 npm run migrate             # 3. dựng CSDL từ trạng thái trống + nạp dữ liệu mẫu (chạy lại không nhân đôi)
-npm test                    # 4. chạy bộ kiểm thử (không cần CSDL thật, tự dựng CSDL trong bộ nhớ)
-npm start                   # 5. chạy API tại http://localhost:3000
+npm test                    # 4. chạy bộ kiểm thử – tự dựng CSDL trong bộ nhớ, in ra số test pass
+npm start                   # 5. chạy API tại http://localhost:3000 (để terminal này chạy)
 ```
 
-Kiểm tra hệ thống đã chạy đúng (mở terminal thứ hai):
-
+### 2.2. Giao diện (M1–M3) – terminal thứ hai, backend phải đang chạy
 ```bash
-curl -s http://localhost:3000/health                              # {"status":"ok"}
-curl -s "http://localhost:3000/api/customers?phone=0901234567"    # khách Lê Cường từ dữ liệu mẫu
+cd src/frontend             # 6. vào thư mục giao diện
+npm install                 # 7. cài React + Vite theo src/frontend/package-lock.json
+cp .env.example .env        # 8. (PowerShell: Copy-Item .env.example .env)
+npm run dev                 # 9. mở http://localhost:5173
 ```
+
+**Tài khoản mẫu** (chỉ có trong dữ liệu mẫu `seeds/`, mật khẩu demo `Demo@123`):
+`nv01` – nhân viên tiếp nhận (A1) · `ql01` – Quản lý TTBH (A2, được duyệt/từ chối bảo hành).
+
+### 2.3. Kiểm tra hệ thống đã chạy đúng
+```bash
+curl -s http://localhost:3000/health                      # {"status":"ok"}
+curl -s http://localhost:3000/api/tickets                  # 401 CHUA_DANG_NHAP – API nghiệp vụ phải đăng nhập (NFR-06)
+```
+Trên giao diện: đăng nhập `nv01` → **Tạo phiếu** → tra SĐT `0987654321` → nhập mô tả "Máy không lên nguồn" → **Tạo phiếu** → thấy phiếu `BH-000001`, nhóm *Phần cứng · Cao*, bảo hành *Chưa xác minh* (máy mẫu không có ngày mua). Đăng nhập `ql01` để duyệt.
+
+**Ghi chú prototype:** token đăng nhập lưu ở `localStorage` (đọc được nếu trang có lỗi XSS – chấp nhận ở mức prototype vì giao diện không hiển thị HTML do người dùng nhập); phiên lưu trong bộ nhớ backend, khởi động lại backend thì phải đăng nhập lại.
 
 ## 3. Cấu trúc repo
 | Đường dẫn | Nội dung |
@@ -38,7 +50,7 @@ curl -s "http://localhost:3000/api/customers?phone=0901234567"    # khách Lê C
 | `src/backend/rules/` | WarrantyRule, ClassificationRule, SlaCalculator (hàm thuần) |
 | `src/backend/repositories/` | Lớp truy cập dữ liệu – nơi duy nhất viết SQL |
 | `src/backend/middleware/` | Xác thực phiên, phân quyền (NFR-06) |
-| `src/frontend/` | Giao diện M1–M3 (buổi 10) |
+| `src/frontend/` | Giao diện React: `api/` (lớp gọi API duy nhất), `pages/` (M1–M3, đăng nhập), `components/DataState.jsx` (3 trạng thái) |
 | `migrations/`, `seeds/` | Tạo bảng và dữ liệu mẫu cho SQLite |
 | `tests/` | Bộ kiểm thử (`node --test`) |
 | `docs/` | SRS, sơ đồ .drawio, nhật ký thay đổi thiết kế, khai báo AI |
@@ -60,16 +72,16 @@ curl -s "http://localhost:3000/api/customers?phone=0901234567"    # khách Lê C
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 6. Trạng thái hiện tại (buổi 8 – 19/10/2026)
+## 6. Trạng thái hiện tại (buổi 10 – 23/10/2026)
 - [x] Ghi quyết định điều chỉnh thiết kế theo phản hồi BT1 (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-04)
-- [x] Khung `src/` theo sơ đồ kiến trúc 4 lớp
-- [x] Migration tạo 6 bảng theo ERD BT1 + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi
-- [x] CRUD **khách hàng** qua 3 lớp routes → services → repositories (`/api/customers`)
-- [x] 3 kiểm thử PASS: luồng đúng · dữ liệu sai · quy tắc BR-07
-- [ ] CRUD **phiếu bảo hành** + quy tắc WarrantyRule, ClassificationRule, SlaCalculator (trước buổi 10)
-- [ ] Kiểm thử giá trị biên cho SLA và bảo hành (GWT-06, GWT-13 → GWT-15)
-- [ ] Xác thực phiên 30 phút, phân quyền A1/A2 (NFR-06)
-- [ ] Ba màn hình M1–M3 có ba trạng thái đang tải · rỗng · lỗi (buổi 10)
+- [x] Migration 6 bảng + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi
+- [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories
+- [x] Quy tắc WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05) – hàm thuần
+- [x] Đăng nhập, phiên 30 phút, phân quyền A1/A2: 401/403 (NFR-06)
+- [x] 30 kiểm thử PASS: luồng đúng · giá trị biên (GWT-06, 07, 13 → 15, phiên 30 phút) · dữ liệu sai (GWT-04, 05, 08)
+- [x] Giao diện M1 Tạo phiếu · M2 Danh sách · M3 Chi tiết, mỗi màn hình có đang tải · rỗng · lỗi + Thử lại
+- [ ] Chạy phép thử clone vào thư mục trống và làm đúng README (trước buổi 12)
+- [ ] Ảnh chụp luồng end-to-end và ba trạng thái vào `docs/`
 - Ghi chú: dùng SQLite thay PostgreSQL vì máy chưa cài PostgreSQL (TD-04)
 
 Quy ước commit: Conventional Commits – `feat`, `fix`, `docs`, `chore`, `refactor`, `test` (TD-03).
