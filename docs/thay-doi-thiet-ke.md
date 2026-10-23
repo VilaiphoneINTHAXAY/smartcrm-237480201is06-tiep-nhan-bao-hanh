@@ -25,3 +25,12 @@
 - Quyết định      : SỬA – CSDL của prototype dùng SQLite (module node:sqlite có sẵn trong Node.js ≥ 22.13) thay cho PostgreSQL 16 như thiết kế BT1. DDL được chuyển sang migrations/001_init.sql: BIGSERIAL → INTEGER PRIMARY KEY AUTOINCREMENT, TIMESTAMPTZ → TEXT (ISO 8601), BOOLEAN → INTEGER 0/1. Các CHECK dùng biểu thức chính quy (IMEI, Serial, SĐT) chuyển sang lớp validators/ vì SQLite không hỗ trợ ~ .
 - Lý do           : Máy cá nhân chưa cài PostgreSQL; slide buổi 8 cho phép dùng SQLite làm phương án dự phòng. SQLite không cần cài máy chủ, không cần mật khẩu, nên người khác clone repo về là chạy được ngay (tiêu chí C1). Với khoảng 12 phiếu/ngày (NFR-04: ≥ 20 người dùng) SQLite vẫn đủ.
 - Ảnh hưởng       : migrations/001_init.sql, seeds/001_demo.sql, src/backend/db.js, .env.example (bỏ DB_HOST/DB_USER/DB_PASSWORD, thêm DB_PATH); docs/architecture.drawio (lớp 4 và khối CSDL ghi SQLite); docs/srs.md mục ràng buộc kỹ thuật. Lập luận LL5 của BT1 vẫn giữ. db/schema.sql (bản PostgreSQL của BT1) giữ nguyên để đối chiếu. Partial index idx_ticket_open_sla (LL2, NFR-07) vẫn giữ vì SQLite hỗ trợ.
+
+## Trong khi hiện thực Bài tập 2 (buổi 10, ngày 23/10/2026)
+
+### TD-05  Giao diện M1–M3 so với wireframe BT1
+- Phản hồi của GV : Không có góp ý riêng; ghi lại để mã nguồn khớp thiết kế BT1 (tiêu chí 3).
+- Quyết định      : GIỮ NGUYÊN bố cục wireframe (thanh trên, M1 hai cột có khung "Kết quả sau khi lưu", M2 hai tab + bảng 9 cột + dòng đỏ quá hạn, M3 hai cột + khung Duyệt bảo hành + bảng lịch sử). SỬA bổ sung ba điểm nhỏ: (1) M1 có lựa chọn "+ Thiết bị mới" và ô nhập họ tên khi bấm "+ Tạo khách hàng mới"; (2) M2 có dòng tổng "N phiếu · M quá hạn SLA"; (3) M3 có nút "Chuyển trạng thái" theo đúng thứ tự MỚI → ĐÃ PHÂN CÔNG → ĐANG XỬ LÝ → HOÀN TẤT → ĐÃ ĐÓNG. Mã phiếu đổi về dạng BH-0001 như wireframe.
+- Lý do           : (1) wireframe vẽ nút "+ Tạo khách hàng mới" nhưng chưa vẽ ô nhập, và cần tạo được thiết bị chưa đăng ký; (2) con số phải có ngữ cảnh so sánh (buổi 9); (3) bảng ticket_status_log có hành động DOI_TRANG_THAI nên cần một chỗ để tạo dòng đó. Phân trang 20 phiếu/trang làm ở giao diện vì dữ liệu mẫu còn nhỏ.
+- Ảnh hưởng       : src/frontend/src/pages/*.jsx, styles.css; ticket.repository.js (mã BH-0001, thêm tên người tiếp nhận cho M3); ticket.contract.js (thêm createdByName). Không đổi ERD, không đổi API.
+

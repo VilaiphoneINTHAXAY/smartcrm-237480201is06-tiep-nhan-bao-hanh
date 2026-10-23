@@ -26,8 +26,8 @@ export default function LoginPage({ onLogin }) {
   return (
     <main className="login">
       <form className="card" onSubmit={gui}>
-        <h1>Tiếp nhận bảo hành</h1>
-        <p className="muted">Mekong Mobile · đăng nhập để tiếp tục</p>
+        <h1>Smart CRM · Bảo hành</h1>
+        <p className="muted">Mekong Mobile · Tiếp nhận và phân loại yêu cầu bảo hành</p>
         <label>Tên đăng nhập
           <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
         </label>
@@ -35,7 +35,7 @@ export default function LoginPage({ onLogin }) {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
         </label>
         {loi && <p className="field-error" role="alert">{loi}</p>}
-        <button type="submit" disabled={dangGui}>{dangGui ? 'Đang đăng nhập…' : 'Đăng nhập'}</button>
+        <button type="submit" className="btn-dark" disabled={dangGui}>{dangGui ? 'Đang đăng nhập…' : 'Đăng nhập'}</button>
       </form>
     </main>
   );

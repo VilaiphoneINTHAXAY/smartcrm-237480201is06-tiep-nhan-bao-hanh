@@ -7,11 +7,12 @@ const SELECT_PHIEU = `
          t.priority, t.status, t.warranty_status, t.is_unverified, t.received_at, t.sla_due_at,
          d.model_name, d.imei, d.serial_no, d.purchase_date, d.warranty_months,
          c.id AS customer_id, c.full_name AS customer_name, c.phone AS customer_phone,
-         ic.name AS category_name
+         ic.name AS category_name, u.full_name AS created_by_name
   FROM ticket t
   JOIN device d          ON d.id = t.device_id
   JOIN customer c        ON c.id = d.customer_id
-  JOIN issue_category ic ON ic.id = t.category_id`;
+  JOIN issue_category ic ON ic.id = t.category_id
+  JOIN app_user u        ON u.id = t.created_by`;
 
 class TicketRepository {
   constructor(db) {
@@ -58,7 +59,7 @@ class TicketRepository {
     ).run(p.deviceId, p.categoryId, p.createdBy, p.issueDescription, p.priority,
       p.warrantyStatus, p.isUnverified ? 1 : 0, p.receivedAt, p.slaDueAt);
     const id = Number(r.lastInsertRowid);
-    this.db.prepare('UPDATE ticket SET code = ? WHERE id = ?').run(`BH-${String(id).padStart(6, '0')}`, id);
+    this.db.prepare('UPDATE ticket SET code = ? WHERE id = ?').run(`BH-${String(id).padStart(4, '0')}`, id);
     return id;
   }
 

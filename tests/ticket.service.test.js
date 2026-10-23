@@ -29,7 +29,7 @@ const mayMoi = (khachId, extra = {}) => ({
 test('Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nhóm Phần cứng/CAO, hạn SLA thứ Hai, có lịch sử', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Màn hình bị sọc xanh', device: mayMoi(khachId) }, NV);
-  assert.match(p.code, /^BH-\d{6}$/);
+  assert.match(p.code, /^BH-\d{4,}$/);
   assert.equal(p.status, 'MOI');
   assert.equal(p.warrantyStatus, 'CON_BAO_HANH');
   assert.equal(p.categoryName, 'Phần cứng');
@@ -92,7 +92,7 @@ test('Đổi trạng thái chỉ đi tiến từng bước: MOI -> HOAN_TAT bị
 test('Hợp đồng toTicketView: đủ trường, ngày dạng ISO, purchaseDate null khi chưa có ngày mua', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Ốp lưng bị nứt', device: mayMoi(khachId, { purchaseDate: null }) }, NV);
-  assert.deepEqual(Object.keys(p).sort(), ['categoryName', 'code', 'customer', 'device', 'id', 'isOverdue',
+  assert.deepEqual(Object.keys(p).sort(), ['categoryName', 'code', 'createdByName', 'customer', 'device', 'id', 'isOverdue',
     'isUnverified', 'issueDescription', 'needsAttention', 'priority', 'receivedAt', 'slaDueAt', 'status', 'warrantyStatus']);
   assert.match(p.receivedAt, /^\d{4}-\d{2}-\d{2}T.*Z$/);
   assert.equal(p.device.purchaseDate, null);

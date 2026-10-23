@@ -1,4 +1,5 @@
-// App – điều hướng đơn giản bằng địa chỉ #/... (không cần thư viện router) và giữ người dùng đăng nhập.
+// App – điều hướng bằng địa chỉ #/... (không cần thư viện router) và giữ người dùng đăng nhập.
+// Thanh trên cùng theo wireframe BT1: "Smart CRM · Bảo hành" · hai tab · người dùng | Đăng xuất.
 import { useEffect, useState } from 'react';
 import { authApi } from './api/auth.api';
 import { onUnauthorized, tokenStore } from './api/client';
@@ -7,6 +8,7 @@ import ReceiveDevicePage from './pages/ReceiveDevicePage';
 import TicketListPage from './pages/TicketListPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import { DataState } from './components/DataState';
+import { TEN_VAI_TRO } from './components/format';
 
 const docDuongDan = () => window.location.hash.replace(/^#/, '') || '/tickets';
 const di = (p) => { window.location.hash = p; };
@@ -32,8 +34,8 @@ export default function App() {
     window.addEventListener('hashchange', doi);
     onUnauthorized(() => setUser(null)); // 401 ở bất kỳ đâu -> về trang đăng nhập
     if (tokenStore.get()) kiemTraPhien();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => window.removeEventListener('hashchange', doi);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (kiemTra) return <main className="page"><DataState loading /></main>;
@@ -49,18 +51,20 @@ export default function App() {
   const chiTiet = path.match(/^\/tickets\/(\d+)$/);
   let trang;
   if (path === '/receive') trang = <ReceiveDevicePage moPhieu={(id) => di(`/tickets/${id}`)} />;
-  else if (chiTiet) trang = <TicketDetailPage id={Number(chiTiet[1])} user={user} quayLai={() => di('/tickets')} />;
-  else trang = <TicketListPage moPhieu={(id) => di(`/tickets/${id}`)} taoPhieu={() => di('/receive')} />;
+  else if (chiTiet) trang = <TicketDetailPage id={Number(chiTiet[1])} user={user} />;
+  else trang = <TicketListPage user={user} moPhieu={(id) => di(`/tickets/${id}`)} taoPhieu={() => di('/receive')} />;
 
   return (
     <>
       <header className="topbar">
-        <strong>Mekong Mobile · Bảo hành</strong>
-        <nav>
-          <a href="#/receive" className={path === '/receive' ? 'active' : ''}>Tạo phiếu</a>
-          <a href="#/tickets" className={path.startsWith('/tickets') ? 'active' : ''}>Danh sách phiếu</a>
+        <strong className="brand">Smart CRM · Bảo hành</strong>
+        <nav className="tabs">
+          <a href="#/receive" className={path === '/receive' ? 'tab active' : 'tab'}>Tạo phiếu bảo hành</a>
+          <a href="#/tickets" className={path === '/tickets' ? 'tab active' : 'tab'}>Danh sách phiếu</a>
         </nav>
-        <span className="user">{user.fullName} ({user.role === 'QUAN_LY' ? 'Quản lý' : 'Tiếp nhận'}) <button className="link" onClick={dangXuat}>Đăng xuất</button></span>
+        <span className="user">
+          {user.fullName} ({TEN_VAI_TRO[user.role]}) &nbsp;|&nbsp; <button className="link" onClick={dangXuat}>Đăng xuất</button>
+        </span>
       </header>
       <main className="page">{trang}</main>
     </>

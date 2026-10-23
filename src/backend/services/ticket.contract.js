@@ -2,7 +2,7 @@
 // Giao diện chỉ biết hợp đồng này, KHÔNG biết tên cột trong CSDL: đổi tên cột chỉ phải sửa ở đây.
 //
 //  id               : số nguyên, luôn có
-//  code             : chuỗi dạng BH-000001, luôn có
+//  code             : chuỗi dạng BH-0001 (theo wireframe M1), luôn có
 //  status           : 'MOI' | 'DA_PHAN_CONG' | 'DANG_XU_LY' | 'HOAN_TAT' | 'DA_DONG'
 //  priority         : 'CAO' | 'TRUNG_BINH' | 'THAP'
 //  categoryName     : tên nhóm sự cố, luôn có ("Khác" nếu không khớp từ khoá)
@@ -13,6 +13,7 @@
 //  slaDueAt         : chuỗi ISO 8601 (UTC, có chữ Z), luôn có
 //  isOverdue        : boolean – phiếu CHƯA hoàn tất và đã quá hạn SLA (GWT-16, tô đỏ)
 //  needsAttention   : boolean – phiếu chưa hoàn tất, còn ≤ 8 giờ hoặc đã quá hạn (GWT-16)
+//  createdByName    : họ tên người tiếp nhận (M3), luôn có
 //  customer         : { id, fullName, phone }
 //  device           : { id, modelName, imei: chuỗi|null, serialNo: chuỗi|null,
 //                       purchaseDate: 'YYYY-MM-DD'|null (null = chưa có ngày mua), warrantyMonths }
@@ -32,6 +33,7 @@ function toTicketView(row, now = new Date()) {
     isUnverified: row.is_unverified === 1,
     issueDescription: row.issue_description,
     receivedAt: row.received_at,
+    createdByName: row.created_by_name,
     slaDueAt: row.sla_due_at,
     isOverdue: conMo && conLaiMs < 0,
     needsAttention: conMo && conLaiMs <= TAM_GIO_MS,
