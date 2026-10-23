@@ -2,6 +2,8 @@
 // Đổi base URL, thêm token, xử lý 401 -> chỉ sửa ở đây.
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'; // không ghi cứng trong component
 const KHOA_TOKEN = 'smartcrm_token';
+// Chỉ để CHỤP ẢNH trạng thái "đang tải": đặt VITE_DEMO_DELAY_MS trong .env. Mặc định 0 = không chờ.
+const DEMO_DELAY_MS = Number(import.meta.env.VITE_DEMO_DELAY_MS) || 0;
 
 export class ApiError extends Error {
   constructor(status, code, message, fields) {
@@ -25,6 +27,7 @@ export function onUnauthorized(fn) { khiHetPhien = fn; }
 
 export async function request(path, { method = 'GET', body } = {}) {
   const token = tokenStore.get();
+  if (DEMO_DELAY_MS > 0) await new Promise((r) => setTimeout(r, DEMO_DELAY_MS));
   let res;
   try {
     res = await fetch(`${BASE}${path}`, {

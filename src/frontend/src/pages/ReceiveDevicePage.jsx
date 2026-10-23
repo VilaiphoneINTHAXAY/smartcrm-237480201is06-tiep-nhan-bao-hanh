@@ -51,6 +51,7 @@ export default function ReceiveDevicePage({ moPhieu }) {
 
   async function luuPhieu(e) {
     e.preventDefault();
+    if (!khach) return; // chưa tra cứu khách thì chưa lưu được (Enter ở ô khác không được tạo phiếu)
     setLuu({ loading: true, error: null });
     const payload = { issueDescription: moTa };
     if (chon === 'new') {
@@ -101,7 +102,8 @@ export default function ReceiveDevicePage({ moPhieu }) {
             <legend>1. Khách hàng</legend>
             <div className="form-row">
               <label htmlFor="sdt">Số điện thoại</label>
-              <input id="sdt" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0901234567" inputMode="tel" />
+              <input id="sdt" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0901234567" inputMode="tel"
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (phone.trim()) traCuu(); } }} />
               <button type="button" className="btn-outline" onClick={traCuu} disabled={tra.loading || !phone.trim()}>
                 {tra.loading ? 'Đang tìm…' : 'Tra cứu'}
               </button>
