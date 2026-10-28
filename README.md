@@ -7,21 +7,57 @@ Luồng **L2**: tra cứu khách theo SĐT → tạo phiếu bảo hành (IMEI/S
 
 **Ngoài phạm vi (WON'T):** phân công kỹ thuật viên (L4), tồn kho linh kiện (L5), khảo sát hài lòng (L8), gửi SMS/Zalo, ngày lễ trong SLA, triển khai/hạ tầng.
 
-## 2. Cấu trúc repo và cách mở file thiết kế
+## 2. Yêu cầu môi trường và cách chạy
+- **Node.js ≥ 22.13** (đã thử với Node.js 24 LTS) và npm đi kèm. Kiểm tra: `node -v`
+- **CSDL:** SQLite qua module có sẵn `node:sqlite` – **không cần cài máy chủ CSDL** (xem TD-04 trong `docs/thay-doi-thiet-ke.md`)
+- **Biến môi trường:** backend xem `.env.example` (`PORT`, `DB_PATH`, `SESSION_TIMEOUT_MINUTES`, `FRONTEND_ORIGIN`); giao diện xem `src/frontend/.env.example` (`VITE_API_BASE_URL`)
+
+### 2.1. Backend (API) – terminal thứ nhất, ở thư mục gốc của repo
+```bash
+npm install                 # 1. cài thư viện theo package-lock.json
+cp .env.example .env        # 2. tạo tệp cấu hình (Windows PowerShell: Copy-Item .env.example .env)
+npm run migrate             # 3. dựng CSDL từ trạng thái trống + nạp dữ liệu mẫu (chạy lại không nhân đôi)
+npm test                    # 4. chạy bộ kiểm thử – tự dựng CSDL trong bộ nhớ, in ra số test pass
+npm start                   # 5. chạy API tại http://localhost:3000 (để terminal này chạy)
+```
+
+### 2.2. Giao diện (M1–M3) – terminal thứ hai, backend phải đang chạy
+```bash
+cd src/frontend             # 6. vào thư mục giao diện
+npm install                 # 7. cài React + Vite theo src/frontend/package-lock.json
+cp .env.example .env        # 8. (PowerShell: Copy-Item .env.example .env)
+npm run dev                 # 9. mở http://localhost:5173
+```
+
+> Giao diện **bắt buộc** chạy ở cổng 5173 (backend chỉ cho phép CORS từ `FRONTEND_ORIGIN`). Nếu báo `Port 5173 is already in use` thì tắt các terminal `npm run dev` cũ rồi chạy lại (xem BUG-002 trong `docs/bug-log.md`).
+
+**Tài khoản mẫu** (chỉ có trong dữ liệu mẫu `seeds/`, mật khẩu demo `Demo@123`):
+`nv01` – nhân viên tiếp nhận (A1) · `ql01` – Quản lý TTBH (A2, được duyệt/từ chối bảo hành).
+
+### 2.3. Kiểm tra hệ thống đã chạy đúng
+```bash
+curl -s http://localhost:3000/health                      # {"status":"ok"}
+curl -s http://localhost:3000/api/tickets                  # 401 CHUA_DANG_NHAP – API nghiệp vụ phải đăng nhập (NFR-06)
+```
+Trên giao diện: đăng nhập `nv01` → **Tạo phiếu** → tra SĐT `0987654321` → nhập mô tả "Máy không lên nguồn" → **Tạo phiếu** → thấy khung **Kết quả sau khi lưu** với phiếu `BH-0001`, nhóm *Phần cứng · Cao*, bảo hành *Chưa xác minh* (máy mẫu không có ngày mua). Đăng nhập `ql01` để duyệt.
+
+**Ghi chú prototype:** token đăng nhập lưu ở `localStorage` (đọc được nếu trang có lỗi XSS – chấp nhận ở mức prototype vì giao diện không hiển thị HTML do người dùng nhập); phiên lưu trong bộ nhớ backend, khởi động lại backend thì phải đăng nhập lại.
+
+## 3. Cấu trúc repo
 | Đường dẫn | Nội dung |
 |---|---|
-| `docs/srs.md` | SRS rút gọn (Mục 1 của bài nộp) |
-| `docs/usecase.drawio` | Use Case Diagram – mở bằng https://app.diagrams.net (File → Open) |
-| `docs/architecture.drawio` | Sơ đồ kiến trúc 4 lớp |
-| `docs/erd.drawio` | ERD 6 bảng |
-| `docs/wireframe.drawio` | Wireframe M1, M2, M3 (3 trang) · ảnh: `docs/wireframe.png` |
-| `docs/export/*.png` | Ảnh xuất từ các file .drawio, chèn trong PDF |
-| `docs/api-contract.md` | API contract (track SE) |
-| `docs/ai-disclosure.md` | Bảng khai báo sử dụng công cụ AI |
-| `db/schema.sql` | SQL DDL skeleton (PostgreSQL 16) |
-| `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bản đã nộp trên E-learning |
-
-Chạy thử DDL: `createdb smartcrm && psql -d smartcrm -f db/schema.sql`
+| `src/backend/routes/` | Lớp API – nhận HTTP, đổi mã nghiệp vụ sang mã HTTP |
+| `src/backend/validators/` | Kiểm tra định dạng dữ liệu vào |
+| `src/backend/services/` | Lớp nghiệp vụ – không chứa dấu vết HTTP |
+| `src/backend/rules/` | WarrantyRule, ClassificationRule, SlaCalculator (hàm thuần) |
+| `src/backend/repositories/` | Lớp truy cập dữ liệu – nơi duy nhất viết SQL |
+| `src/backend/middleware/` | Xác thực phiên, phân quyền (NFR-06) |
+| `src/frontend/` | Giao diện React: `api/` (lớp gọi API duy nhất), `pages/` (M1–M3, đăng nhập), `components/DataState.jsx` (3 trạng thái) |
+| `migrations/`, `seeds/` | Tạo bảng và dữ liệu mẫu cho SQLite |
+| `tests/` | Bộ kiểm thử (`node --test`) |
+| `docs/` | SRS, sơ đồ .drawio, nhật ký thay đổi thiết kế, khai báo AI |
+| `db/schema.sql` | DDL PostgreSQL gốc của BT1 (giữ để đối chiếu) |
+| `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bài tập 1 đã nộp |
 
 ## Liên kết xem / sửa từng thành phần
 
@@ -38,5 +74,16 @@ Chạy thử DDL: `createdb smartcrm && psql -d smartcrm -f db/schema.sql`
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 6. Stack dự kiến
-Node.js + Express (API) · PostgreSQL 16 · React (giao diện). Mã nguồn bắt đầu từ Bài tập 2 (`src/`, `tests/` hiện còn rỗng).
+## 6. Trạng thái hiện tại (buổi 10 – 23/10/2026)
+- [x] Ghi quyết định điều chỉnh thiết kế theo phản hồi BT1 (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-04)
+- [x] Migration 6 bảng + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi
+- [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories
+- [x] Quy tắc WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05) – hàm thuần
+- [x] Đăng nhập, phiên 30 phút, phân quyền A1/A2: 401/403 (NFR-06)
+- [x] 30 kiểm thử PASS: luồng đúng · giá trị biên (GWT-06, 07, 13 → 15, phiên 30 phút) · dữ liệu sai (GWT-04, 05, 08)
+- [x] Giao diện M1 Tạo phiếu · M2 Danh sách · M3 Chi tiết, mỗi màn hình có đang tải · rỗng · lỗi + Thử lại
+- [ ] Chạy phép thử clone vào thư mục trống và làm đúng README (trước buổi 12)
+- [ ] Ảnh chụp luồng end-to-end và ba trạng thái vào `docs/`
+- Ghi chú: dùng SQLite thay PostgreSQL vì máy chưa cài PostgreSQL (TD-04)
+
+Quy ước commit: Conventional Commits – `feat`, `fix`, `docs`, `chore`, `refactor`, `test` (TD-03).

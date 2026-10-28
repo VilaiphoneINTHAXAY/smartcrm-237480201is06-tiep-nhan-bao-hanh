@@ -1,0 +1,33 @@
+{
+  "name": "smartcrm-237480201is06-tiep-nhan-bao-hanh",
+  "version": "1.0.0",
+  "description": "Smart CRM – Mekong Mobile · Luồng L2: Tiếp nhận và phân loại yêu cầu bảo hành (Track SE)",
+  "main": "src/backend/server.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/backend/server.js",
+    "migrate": "node --env-file-if-exists=.env src/backend/migrate.js",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh.git"
+  },
+  "keywords": [],
+  "author": "INTHAXAY Vilaiphone – 237480201IS06",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/issues"
+  },
+  "homepage": "https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh#readme",
+  "dependencies": {
+    "express": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
