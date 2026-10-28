@@ -29,6 +29,8 @@ cp .env.example .env        # 8. (PowerShell: Copy-Item .env.example .env)
 npm run dev                 # 9. mở http://localhost:5173
 ```
 
+> Giao diện **bắt buộc** chạy ở cổng 5173 (backend chỉ cho phép CORS từ `FRONTEND_ORIGIN`). Nếu báo `Port 5173 is already in use` thì tắt các terminal `npm run dev` cũ rồi chạy lại (xem BUG-002 trong `docs/bug-log.md`).
+
 **Tài khoản mẫu** (chỉ có trong dữ liệu mẫu `seeds/`, mật khẩu demo `Demo@123`):
 `nv01` – nhân viên tiếp nhận (A1) · `ql01` – Quản lý TTBH (A2, được duyệt/từ chối bảo hành).
 
