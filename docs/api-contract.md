@@ -20,10 +20,10 @@ Lỗi chung: **401** phiên hết hạn / chưa đăng nhập (NFR-06) · **403*
 { "customerId": 12, "device": { "modelName": "Galaxy A55", "imei": "356938035643809",
   "purchaseDate": "2026-03-15", "warrantyMonths": 12 },
   "issueDescription": "Màn hình không lên nguồn" }
-// response 201 – tiếp nhận thứ Sáu 02/10/2026 09:00, CAO = +1 ngày làm việc
+// response 201 – tiếp nhận thứ Sáu 02/10/2026 09:00, CAO = +1 ngày làm việc → thứ Bảy (QT-04, TD-06)
 { "code": "BH-0001", "status": "MOI", "warrantyStatus": "CON_BAO_HANH", "isUnverified": false,
   "category": "Phần cứng", "priority": "CAO",
-  "receivedAt": "2026-10-02T09:00:00+07:00", "slaDueAt": "2026-10-05T09:00:00+07:00" }
+  "receivedAt": "2026-10-02T09:00:00+07:00", "slaDueAt": "2026-10-03T09:00:00+07:00" }
 ```
 
 ## Ví dụ `PATCH /api/tickets/BH-0002/warranty-review`

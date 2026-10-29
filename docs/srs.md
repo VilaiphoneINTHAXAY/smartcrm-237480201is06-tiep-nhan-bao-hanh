@@ -21,7 +21,7 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | Mức ưu tiên | CAO / TRUNG_BINH / THAP | ticket.priority |
 | Thời điểm tiếp nhận | Ngày giờ phiếu được tạo | ticket.received_at |
 | Hạn SLA | Thời điểm cam kết xử lý xong phiếu, chốt lúc tạo phiếu | ticket.sla_due_at |
-| Ngày làm việc | Thứ Hai – thứ Sáu, chưa tính ngày lễ | — |
+| Ngày làm việc | Thứ Hai – thứ Bảy theo QT-04 của case study (Chủ nhật nghỉ), chưa tính ngày lễ – sửa theo nhận xét BT1, xem TD-06 | — |
 | Tình trạng bảo hành | CÒN BẢO HÀNH / HẾT BẢO HÀNH / CHƯA XÁC MINH | ticket.warranty_status |
 | Cờ "chưa xác minh bảo hành" | Đánh dấu phiếu thiếu ngày mua, chờ Quản lý TTBH duyệt | ticket.is_unverified |
 | Trạng thái phiếu | Vòng đời phiếu; luồng L2 chỉ tạo trạng thái MỚI | ticket.status |
@@ -92,9 +92,9 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | GWT-10 | US04 | (ngoại lệ) Quản lý TTBH bấm Từ chối mà không nhập lý do → báo "Phải nhập lý do khi từ chối"; có lý do → giữ cờ, ghi lý do vào lịch sử. |
 | GWT-11 | US05 | Mô tả lỗi chứa từ khóa của một nhóm (bảng 1.3.2) → tạo phiếu → gán nhóm và mức ưu tiên tương ứng. |
 | GWT-12 | US05 | (ngoại lệ) Mô tả không khớp nhóm nào → tạo phiếu → nhóm "Khác", TRUNG_BINH. |
-| GWT-13 | US05 | Mức ưu tiên CAO, tiếp nhận thứ Sáu 02/10/2026 09:00 → hạn SLA thứ Hai 05/10/2026 09:00. |
-| GWT-14 | US05 | Mức ưu tiên THAP, tiếp nhận thứ Hai 05/10/2026 10:00 → hạn SLA thứ Hai 12/10/2026 10:00. |
-| GWT-15 | US05 | (ngoại lệ) Tiếp nhận thứ Bảy/Chủ nhật → hạn SLA tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc. |
+| GWT-13 | US05 | Mức ưu tiên CAO, tiếp nhận thứ Sáu 02/10/2026 09:00 → hạn SLA thứ Bảy 03/10/2026 09:00 (thứ Bảy là ngày làm việc; TD-06). |
+| GWT-14 | US05 | Mức ưu tiên THAP, tiếp nhận thứ Hai 05/10/2026 10:00 → hạn SLA thứ Bảy 10/10/2026 10:00 (TD-06). |
+| GWT-15 | US05 | (ngoại lệ) Tiếp nhận Chủ nhật → hạn SLA tính từ 08:00 thứ Hai kế tiếp rồi cộng số ngày làm việc (TD-06). |
 | GWT-16 | US06 | Có phiếu còn ≤ 8 giờ đến hạn hoặc đã quá hạn → Quản lý TTBH mở danh sách → hiển thị, phiếu quá hạn tô đỏ. |
 | GWT-17 | US06 | (ngoại lệ) Không có phiếu nào sắp/quá hạn → mở danh sách → hiện "Không có phiếu cần chú ý". |
 | GWT-18 | US07 | Phiếu tồn tại → xem lịch sử → hiển thị mọi dòng lịch sử theo thời gian tăng dần. |
@@ -121,11 +121,11 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | BR-02 | Ngày hết bảo hành = ngày mua + số tháng bảo hành theo tháng lịch (ngày không tồn tại ở tháng đích → lấy ngày cuối tháng). Ngày mua không được sau ngày tiếp nhận. | Case study + phân tích |
 | BR-03 | Thiếu ngày mua → CHƯA XÁC MINH + cờ. Chỉ Quản lý TTBH được duyệt (→ CÒN BẢO HÀNH, bỏ cờ) hoặc từ chối (giữ cờ). | Phân tích của em |
 | BR-04 | Phân loại: so khớp từ khóa không phân biệt hoa/thường, xét theo thứ tự bảng 1.3.2, khớp nhóm đầu tiên thì dừng; không khớp → "Khác", TRUNG_BINH. | Phân tích của em |
-| BR-05 | Hạn SLA: CAO 24h, TRUNG_BINH 72h, THAP 120h, quy đổi thành 1/3/5 ngày làm việc, giữ nguyên giờ tiếp nhận; tiếp nhận thứ Bảy/Chủ nhật → tính từ 08:00 thứ Hai. Hạn SLA chốt lúc tạo phiếu, không tự tính lại. | Case study (24h/72h/120h); cách quy đổi là giả định |
+| BR-05 | Hạn SLA: CAO 24h, TRUNG_BINH 72h, THAP 120h, quy đổi thành 1/3/5 ngày làm việc, giữ nguyên giờ tiếp nhận; ngày làm việc thứ Hai – thứ Bảy (QT-04), tiếp nhận Chủ nhật → tính từ 08:00 thứ Hai. Hạn SLA chốt lúc tạo phiếu, không tự tính lại. | Case study (24h/72h/120h); cách quy đổi là giả định |
 | BR-06 | Từ chối bảo hành bắt buộc nhập lý do; lý do lưu vào lịch sử trạng thái. | Phân tích của em |
 | BR-07 | Một SĐT chỉ thuộc một khách hàng. | Phân tích của em |
 
-**Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16 theo thiết kế (prototype BT2 dùng SQLite – xem TD-04), React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ.
+**Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16 theo thiết kế (prototype BT2 dùng SQLite – xem TD-04), React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ. (Giả định cũ “thứ Hai – thứ Sáu” đã bỏ theo nhận xét BT1 – TD-06.)
 
 ## 1.6. Bảng truy vết yêu cầu
 

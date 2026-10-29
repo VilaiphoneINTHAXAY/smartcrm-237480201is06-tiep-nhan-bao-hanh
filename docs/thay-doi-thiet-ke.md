@@ -34,3 +34,10 @@
 - Lý do           : (1) wireframe vẽ nút "+ Tạo khách hàng mới" nhưng chưa vẽ ô nhập, và cần tạo được thiết bị chưa đăng ký; (2) con số phải có ngữ cảnh so sánh (buổi 9); (3) bảng ticket_status_log có hành động DOI_TRANG_THAI nên cần một chỗ để tạo dòng đó. Phân trang 20 phiếu/trang làm ở giao diện vì dữ liệu mẫu còn nhỏ.
 - Ảnh hưởng       : src/frontend/src/pages/*.jsx, styles.css; ticket.repository.js (mã BH-0001, thêm tên người tiếp nhận cho M3); ticket.contract.js (thêm createdByName). Không đổi ERD, không đổi API.
 
+## Sau nhận xét Bài tập 1 của giảng viên (buổi 11, ngày 30/10/2026)
+
+### TD-06  Ngày làm việc tính SLA: thứ Hai – thứ Bảy theo QT-04 của case study
+- Phản hồi của GV : Nhận xét BT1: “giả định ngày làm việc thứ Hai đến thứ Sáu đang khác quy tắc QT-04 của case study (tính cả thứ Bảy)”; GV đề nghị hiện thực SlaCalculator và viết test cho các ca biên.
+- Quyết định      : SỬA – ngày làm việc là thứ Hai – thứ Bảy, chỉ Chủ nhật là ngày nghỉ. Tiếp nhận Chủ nhật → tính từ 08:00 thứ Hai rồi cộng số ngày làm việc. Giữ nguyên CAO/TRUNG_BINH/THAP = 1/3/5 ngày làm việc và giữ nguyên giờ tiếp nhận.
+- Lý do           : Case study là nguồn quy tắc nghiệp vụ chính thức; giả định thứ Hai – thứ Sáu của BT1 là của em và trái với QT-04.
+- Ảnh hưởng       : src/backend/rules/sla.rule.js (hàm laCuoiTuan → laNgayNghi, chỉ Chủ nhật); tests/sla.rule.test.js (GWT-13: thứ Sáu 09:00 CAO → thứ Bảy 09:00; GWT-14: thứ Hai 05/10 THAP → thứ Bảy 10/10; GWT-15 đổi thành tiếp nhận Chủ nhật; thêm ca biên thứ Bảy CAO → thứ Hai); tests/ticket.service.test.js; docs/srs.md (thuật ngữ “Ngày làm việc”, GWT-13/14/15, BR-05); docs/api-contract.md (ví dụ slaDueAt); ghi chú ở M1. Không đổi ERD, không đổi API. Hình wireframe .drawio của BT1 giữ nguyên để đối chiếu.
