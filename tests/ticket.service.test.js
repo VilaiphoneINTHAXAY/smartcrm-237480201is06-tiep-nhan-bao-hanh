@@ -26,7 +26,7 @@ const mayMoi = (khachId, extra = {}) => ({
   customerId: khachId, modelName: 'Oppo A79', imei: '490154203237518', purchaseDate: '2026-05-01', ...extra,
 });
 
-test('Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nhóm Phần cứng/CAO, hạn SLA thứ Hai, có lịch sử', () => {
+test('Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nhóm Phần cứng/CAO, hạn SLA thứ Bảy, có lịch sử', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Màn hình bị sọc xanh', device: mayMoi(khachId) }, NV);
   assert.match(p.code, /^BH-\d{4,}$/);
@@ -34,8 +34,8 @@ test('Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nh�
   assert.equal(p.warrantyStatus, 'CON_BAO_HANH');
   assert.equal(p.categoryName, 'Phần cứng');
   assert.equal(p.priority, 'CAO');
-  // Thứ Sáu 09:00 + 1 ngày làm việc = thứ Hai 26/10 09:00 (GWT-13)
-  assert.equal(p.slaDueAt, new Date('2026-10-26T09:00:00+07:00').toISOString());
+  // Thứ Sáu 09:00 + 1 ngày làm việc = thứ Bảy 24/10 09:00 (GWT-13, thứ Bảy là ngày làm việc – QT-04)
+  assert.equal(p.slaDueAt, new Date('2026-10-24T09:00:00+07:00').toISOString());
   const logs = service.getLogs(p.id);
   assert.equal(logs.length, 1);
   assert.equal(logs[0].action, 'TAO_PHIEU'); // NFR-05

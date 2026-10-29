@@ -186,7 +186,7 @@ export default function ReceiveDevicePage({ moPhieu }) {
           {ketQua && <p><button className="link" onClick={() => moPhieu(ketQua.id)}>Xem chi tiết phiếu {ketQua.code} (M3) →</button></p>}
           <ul className="notes">
             <li>Thiếu ngày mua → CHƯA XÁC MINH + cờ “chưa xác minh bảo hành” (FR-05)</li>
-            <li>Tiếp nhận T7/CN → SLA tính từ 08:00 thứ Hai (UC05-1a)</li>
+            <li>Tiếp nhận Chủ nhật → SLA tính từ 08:00 thứ Hai; thứ Bảy là ngày làm việc (UC05-1a, QT-04)</li>
           </ul>
         </aside>
       </div>
