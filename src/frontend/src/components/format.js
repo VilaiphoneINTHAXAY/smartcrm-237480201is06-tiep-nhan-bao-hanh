@@ -18,7 +18,8 @@ export function thoiGianNgan(iso) {
 export const ngay = (s) => (s ? s.split('-').reverse().join('/') : '(trống)');
 
 export const TEN_TRANG_THAI = {
-  MOI: 'MỚI', DA_PHAN_CONG: 'ĐÃ PHÂN CÔNG', DANG_XU_LY: 'ĐANG XỬ LÝ', HOAN_TAT: 'HOÀN TẤT', DA_DONG: 'ĐÃ ĐÓNG',
+  MOI: 'MỚI', DA_PHAN_CONG: 'ĐÃ PHÂN CÔNG', DANG_XU_LY: 'ĐANG XỬ LÝ', CHO_LINH_KIEN: 'CHỜ LINH KIỆN',
+  HOAN_TAT: 'HOÀN TẤT', DA_DONG: 'ĐÃ ĐÓNG', DA_HUY: 'ĐÃ HUỶ',
 };
 export const TEN_BAO_HANH = {
   CON_BAO_HANH: 'CÒN BẢO HÀNH', HET_BAO_HANH: 'HẾT BẢO HÀNH', CHUA_XAC_MINH: 'CHƯA XÁC MINH',

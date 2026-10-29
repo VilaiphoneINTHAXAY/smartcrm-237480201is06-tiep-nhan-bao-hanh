@@ -24,7 +24,7 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | Ngày làm việc | Thứ Hai – thứ Bảy theo QT-04 của case study (Chủ nhật nghỉ), chưa tính ngày lễ – sửa theo nhận xét BT1, xem TD-06 | — |
 | Tình trạng bảo hành | CÒN BẢO HÀNH / HẾT BẢO HÀNH / CHƯA XÁC MINH | ticket.warranty_status |
 | Cờ "chưa xác minh bảo hành" | Đánh dấu phiếu thiếu ngày mua, chờ Quản lý TTBH duyệt | ticket.is_unverified |
-| Trạng thái phiếu | Vòng đời phiếu; luồng L2 chỉ tạo trạng thái MỚI | ticket.status |
+| Trạng thái phiếu | Vòng đời phiếu theo Hình 6.2 của case study (MỚI → ĐÃ PHÂN CÔNG → ĐANG XỬ LÝ → [CHỜ LINH KIỆN] → HOÀN TẤT → ĐÃ ĐÓNG; MỚI/ĐÃ PHÂN CÔNG → ĐÃ HUỶ); luồng L2 chỉ tạo trạng thái MỚI – xem BR-09, TD-07 | ticket.status |
 | Lịch sử trạng thái | Nhật ký mọi lần tạo phiếu, đổi trạng thái, duyệt/từ chối bảo hành | ticket_status_log |
 | Nhân viên tiếp nhận (A1) | Người dùng tạo phiếu tại quầy | app_user.role = TIEP_NHAN |
 | Quản lý TTBH (A2) | Quản lý trung tâm bảo hành | app_user.role = QUAN_LY |
@@ -124,6 +124,10 @@ Smart CRM – Mekong Mobile · Track SE · INTHAXAY Vilaiphone (237480201IS06)
 | BR-05 | Hạn SLA: CAO 24h, TRUNG_BINH 72h, THAP 120h, quy đổi thành 1/3/5 ngày làm việc, giữ nguyên giờ tiếp nhận; ngày làm việc thứ Hai – thứ Bảy (QT-04), tiếp nhận Chủ nhật → tính từ 08:00 thứ Hai. Hạn SLA chốt lúc tạo phiếu, không tự tính lại. | Case study (24h/72h/120h); cách quy đổi là giả định |
 | BR-06 | Từ chối bảo hành bắt buộc nhập lý do; lý do lưu vào lịch sử trạng thái. | Phân tích của em |
 | BR-07 | Một SĐT chỉ thuộc một khách hàng. | Phân tích của em |
+| BR-08 | SĐT được chuẩn hoá về 10 chữ số bắt đầu bằng 0 trước khi lưu và trước khi tra cứu (+84…, 84…, có dấu cách/dấu chấm đều quy về dạng chuẩn); không quy được thì từ chối. (bổ sung BT2 – TD-07) | Case study QT-02 |
+| BR-09 | Phiếu chỉ chuyển trạng thái theo vòng đời Hình 6.2, không quay lại; mọi lần chuyển ghi ticket_status_log. Không xoá vật lý phiếu và khách hàng: phiếu → ĐÃ HUỶ (khách huỷ, chỉ khi MỚI/ĐÃ PHÂN CÔNG, bắt buộc lý do), khách → ngừng sử dụng. (bổ sung BT2 – TD-07) | Case study QT-06, QT-13 |
+| BR-10 | SĐT khách hiển thị dạng che (090****567) với nhân viên tiếp nhận; chỉ Quản lý TTBH xem số đầy đủ. (bổ sung BT2 – TD-07) | Case study QT-15 |
+| BR-11 | Khi tạo phiếu cho máy đã đăng ký, máy phải thuộc đúng khách đang được tiếp nhận; một thiết bị không có hai phiếu đang mở cùng lúc (phiếu HOÀN TẤT, ĐÃ ĐÓNG, ĐÃ HUỶ không tính). (bổ sung BT2 – TD-07) | Case study QT-03; ví dụ nghiệp vụ buổi 7 |
 
 **Ràng buộc kỹ thuật:** Node.js + Express, PostgreSQL 16 theo thiết kế (prototype BT2 dùng SQLite – xem TD-04), React (giao diện web đơn giản); dữ liệu mẫu ≥ 500 phiếu trích từ tickets_history.csv. **Giả định cần GV xác nhận:** cách quy đổi 24h/72h/120h sang 1/3/5 ngày làm việc; chưa xử lý ngày lễ. (Giả định cũ “thứ Hai – thứ Sáu” đã bỏ theo nhận xét BT1 – TD-06.)
 

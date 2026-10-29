@@ -45,7 +45,9 @@ function validateTaoPhieu(input) {
 
   if (d.deviceId !== undefined) {
     if (!laSoNguyenDuong(d.deviceId)) throw loi('Mã thiết bị không hợp lệ', 'deviceId');
-    return { issueDescription, deviceId: d.deviceId, device: null };
+    // customerId (không bắt buộc): khách đang được tiếp nhận – để kiểm QT-03 ở lớp service
+    if (d.customerId !== undefined && !laSoNguyenDuong(d.customerId)) throw loi('Mã khách hàng không hợp lệ', 'customerId');
+    return { issueDescription, deviceId: d.deviceId, customerId: d.customerId ?? null, device: null };
   }
   if (!d.device) throw loi('Cần chọn thiết bị đã đăng ký hoặc nhập thiết bị mới', 'deviceId');
   return { issueDescription, deviceId: null, device: validateDevice(d.device) };

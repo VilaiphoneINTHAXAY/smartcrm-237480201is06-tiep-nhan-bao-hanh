@@ -6,7 +6,6 @@ import { useApi } from '../hooks/useApi';
 import { DataState } from '../components/DataState';
 import { thoiGian, ngay, conLai, TEN_TRANG_THAI, TEN_BAO_HANH, TEN_HANH_DONG } from '../components/format';
 
-const BUOC_TIEP = { MOI: 'DA_PHAN_CONG', DA_PHAN_CONG: 'DANG_XU_LY', DANG_XU_LY: 'HOAN_TAT', HOAN_TAT: 'DA_DONG' };
 // changed_at có thể là ISO (ghi từ service) hoặc 'YYYY-MM-DD HH:MM:SS' UTC (mặc định của SQLite)
 const isoTuCsdl = (s) => (s.includes('T') ? s : `${s.replace(' ', 'T')}Z`);
 
@@ -18,6 +17,7 @@ export default function TicketDetailPage({ id, user }) {
   const phieu = useApi(() => ticketsApi.chiTiet(id), [id]);
   const lichSu = useApi(() => ticketsApi.lichSu(id), [id]);
   const [lyDo, setLyDo] = useState('');
+  const [lyDoHuy, setLyDoHuy] = useState('');
   const [tt, setTt] = useState({ loading: false, error: null });
 
   async function lam(fn) {
@@ -25,6 +25,7 @@ export default function TicketDetailPage({ id, user }) {
     try {
       await fn();
       setLyDo('');
+      setLyDoHuy('');
       setTt({ loading: false, error: null });
       phieu.taiLai();
       lichSu.taiLai();
@@ -61,7 +62,7 @@ export default function TicketDetailPage({ id, user }) {
                 <Dong nhan="Mức ưu tiên">{t.priority}</Dong>
                 <Dong nhan="Hạn SLA">
                   {thoiGian(t.slaDueAt)}
-                  {!['HOAN_TAT', 'DA_DONG'].includes(t.status) && <small className={t.isOverdue ? 'danger' : 'muted'}> ({conLai(t.slaDueAt)})</small>}
+                  {!['HOAN_TAT', 'DA_DONG', 'DA_HUY'].includes(t.status) && <small className={t.isOverdue ? 'danger' : 'muted'}> ({conLai(t.slaDueAt)})</small>}
                 </Dong>
                 <div className="kv">
                   <span>Tình trạng bảo hành</span>
@@ -85,11 +86,22 @@ export default function TicketDetailPage({ id, user }) {
                     </div>
                   </div>
                 )}
-                {BUOC_TIEP[t.status] && (
+                {/* QT-06: chỉ hiện các bước được phép theo vòng đời Hình 6.2 (server trả allowedNextStatuses) */}
+                {t.allowedNextStatuses.some((s) => s !== 'DA_HUY') && (
                   <div className="actions">
-                    <button className="btn-outline" disabled={tt.loading} onClick={() => lam(() => ticketsApi.doiTrangThai(t.id, BUOC_TIEP[t.status]))}>
-                      Chuyển trạng thái → {TEN_TRANG_THAI[BUOC_TIEP[t.status]]}
-                    </button>
+                    {t.allowedNextStatuses.filter((s) => s !== 'DA_HUY').map((s) => (
+                      <button key={s} className="btn-outline" disabled={tt.loading} onClick={() => lam(() => ticketsApi.doiTrangThai(t.id, s))}>
+                        Chuyển trạng thái → {TEN_TRANG_THAI[s]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {/* QT-13: không xoá phiếu – khách huỷ khi phiếu còn MỚI / ĐÃ PHÂN CÔNG, bắt buộc lý do */}
+                {t.allowedNextStatuses.includes('DA_HUY') && (
+                  <div className="kv">
+                    <span>Lý do khách huỷ</span>
+                    <input className="val" value={lyDoHuy} onChange={(e) => setLyDoHuy(e.target.value)} />
+                    <button className="btn-outline" disabled={tt.loading} onClick={() => lam(() => ticketsApi.huyPhieu(t.id, lyDoHuy))}>Huỷ phiếu</button>
                   </div>
                 )}
                 {tt.error && !(t.isUnverified && user.role === 'QUAN_LY') && <p className="field-error" role="alert">{tt.error.message}</p>}

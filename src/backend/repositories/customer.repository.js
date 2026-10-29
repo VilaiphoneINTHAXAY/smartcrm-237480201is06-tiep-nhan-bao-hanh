@@ -5,16 +5,22 @@ class CustomerRepository {
     this.db = db;
   }
 
+  // Mặc định chỉ lấy khách còn hoạt động (QT-13: khách "đã xoá" chỉ bị đánh dấu is_active = 0).
   findAll() {
-    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer ORDER BY id').all();
+    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer WHERE is_active = 1 ORDER BY id').all();
   }
 
   findById(id) {
-    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer WHERE id = ?').get(id);
+    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer WHERE id = ? AND is_active = 1').get(id);
   }
 
   findByPhone(phone) {
-    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer WHERE phone = ?').get(phone);
+    return this.db.prepare('SELECT id, full_name, phone, created_at FROM customer WHERE phone = ? AND is_active = 1').get(phone);
+  }
+
+  // Kể cả khách đã ngừng sử dụng: SĐT vẫn là duy nhất trong hệ thống (QT-01, BR-07).
+  phoneExists(phone) {
+    return this.db.prepare('SELECT id FROM customer WHERE phone = ?').get(phone);
   }
 
   create({ fullName, phone }) {
@@ -29,8 +35,9 @@ class CustomerRepository {
     return this.findById(id);
   }
 
-  remove(id) {
-    return this.db.prepare('DELETE FROM customer WHERE id = ?').run(id).changes;
+  // QT-13: không xoá vật lý, chỉ đánh dấu ngừng sử dụng; lịch sử phiếu vẫn giữ nguyên.
+  deactivate(id) {
+    return this.db.prepare('UPDATE customer SET is_active = 0 WHERE id = ?').run(id).changes;
   }
 
   countDevices(customerId) {

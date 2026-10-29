@@ -92,8 +92,63 @@ test('Đổi trạng thái chỉ đi tiến từng bước: MOI -> HOAN_TAT bị
 test('Hợp đồng toTicketView: đủ trường, ngày dạng ISO, purchaseDate null khi chưa có ngày mua', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Ốp lưng bị nứt', device: mayMoi(khachId, { purchaseDate: null }) }, NV);
-  assert.deepEqual(Object.keys(p).sort(), ['categoryName', 'code', 'createdByName', 'customer', 'device', 'id', 'isOverdue',
-    'isUnverified', 'issueDescription', 'needsAttention', 'priority', 'receivedAt', 'slaDueAt', 'status', 'warrantyStatus']);
+  assert.deepEqual(Object.keys(p).sort(), ['allowedNextStatuses', 'categoryName', 'code', 'createdByName', 'customer', 'device',
+    'id', 'isOverdue', 'isUnverified', 'issueDescription', 'needsAttention', 'priority', 'receivedAt', 'slaDueAt', 'status',
+    'warrantyStatus']);
+  assert.deepEqual(p.allowedNextStatuses, ['DA_PHAN_CONG', 'DA_HUY']);   // QT-06
   assert.match(p.receivedAt, /^\d{4}-\d{2}-\d{2}T.*Z$/);
   assert.equal(p.device.purchaseDate, null);
 });
+
+// ---------- Bổ sung theo case study (TD-07) ----------
+
+test('QT-13 + QT-06 luồng đúng: khách huỷ phiếu MOI -> DA_HUY, phiếu vẫn còn, có dòng lịch sử kèm lý do', () => {
+  const { service, khachId } = setup();
+  const p = service.create({ issueDescription: 'Loa rè', device: mayMoi(khachId) }, NV);
+  const huy = service.cancel(p.id, { note: 'Khách đổi ý, không sửa nữa' }, NV);
+  assert.equal(huy.status, 'DA_HUY');
+  assert.equal(huy.needsAttention, false);          // phiếu huỷ không còn tính SLA
+  assert.equal(service.getById(p.id).id, p.id);     // không xoá vật lý
+  const log = service.getLogs(p.id).at(-1);
+  assert.equal(log.to_status, 'DA_HUY');
+  assert.equal(log.note, 'Khách đổi ý, không sửa nữa');
+});
+
+test('QT-06 giá trị biên: phiếu đã DANG_XU_LY thì không huỷ được; huỷ thiếu lý do bị từ chối', () => {
+  const { service, khachId } = setup();
+  const p = service.create({ issueDescription: 'Máy hay bị treo', device: mayMoi(khachId) }, NV);
+  assert.throws(() => service.cancel(p.id, {}, NV), { code: 'DU_LIEU_KHONG_HOP_LE', field: 'note' });
+  service.changeStatus(p.id, { status: 'DA_PHAN_CONG' }, NV);
+  service.changeStatus(p.id, { status: 'DANG_XU_LY' }, NV);
+  assert.throws(() => service.cancel(p.id, { note: 'Khách huỷ' }, NV), { code: 'TRANG_THAI_KHONG_HOP_LE' });
+  // DANG_XU_LY -> CHO_LINH_KIEN -> HOAN_TAT theo Hình 6.2
+  assert.equal(service.changeStatus(p.id, { status: 'CHO_LINH_KIEN' }, NV).status, 'CHO_LINH_KIEN');
+  assert.equal(service.changeStatus(p.id, { status: 'HOAN_TAT' }, NV).status, 'HOAN_TAT');
+});
+
+test('QT-15: nhân viên tiếp nhận thấy SĐT đã che, Quản lý thấy đủ', () => {
+  const { service, khachId } = setup();
+  const p = service.create({ issueDescription: 'Pin chai', device: mayMoi(khachId) }, NV);
+  assert.equal(p.customer.phone, '090****999');
+  assert.equal(service.getById(p.id, QL).customer.phone, '0909000999');
+  assert.equal(service.list({}, NV)[0].customer.phone, '090****999');
+});
+
+test('Dữ liệu sai (QT-03): chọn thiết bị của khách khác -> từ chối, báo tại trường deviceId', () => {
+  const { service, khachId } = setup();
+  const p = service.create({ issueDescription: 'Pin chai', device: mayMoi(khachId) }, NV);
+  service.cancel(p.id, { note: 'Tạo để lấy thiết bị' }, NV);
+  const khachKhac = khachId + 1000;
+  assert.throws(() => service.create({ issueDescription: 'Pin chai', deviceId: p.device.id, customerId: khachKhac }, NV),
+    { code: 'THIET_BI_KHONG_THUOC_KHACH', field: 'deviceId' });
+});
+
+test('Một thiết bị không có hai phiếu đang mở; phiếu cũ đã huỷ thì tạo phiếu mới được', () => {
+  const { service, khachId } = setup();
+  const p = service.create({ issueDescription: 'Loa rè', device: mayMoi(khachId) }, NV);
+  const lai = { issueDescription: 'Loa vẫn rè', deviceId: p.device.id, customerId: khachId };
+  assert.throws(() => service.create(lai, NV), { code: 'PHIEU_DANG_MO' });
+  service.cancel(p.id, { note: 'Khách huỷ' }, NV);
+  assert.equal(service.create(lai, NV).status, 'MOI');
+});
+
