@@ -74,16 +74,22 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 6. Trạng thái hiện tại (buổi 10 – 23/10/2026)
-- [x] Ghi quyết định điều chỉnh thiết kế theo phản hồi BT1 (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-04)
-- [x] Migration 6 bảng + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi
-- [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories
-- [x] Quy tắc WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05) – hàm thuần
+## 6. Trạng thái hiện tại (buổi 12 – 30/10/2026)
+- [x] Ghi quyết định điều chỉnh thiết kế (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-08), trong đó TD-06 sửa SLA theo nhận xét BT1 (QT-04: thứ Hai – thứ Bảy)
+- [x] Migration + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi; mỗi migration chỉ chạy một lần (`schema_migration`)
+- [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories; "xoá" là xoá mềm (QT-13)
+- [x] Quy tắc dạng hàm thuần: WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05, QT-04), PhoneRule (QT-02, QT-15)
+- [x] Vòng đời phiếu theo Hình 6.2 của case study (QT-06), có huỷ phiếu kèm lý do; thiết bị phải thuộc đúng khách (QT-03) và không có hai phiếu đang mở
 - [x] Đăng nhập, phiên 30 phút, phân quyền A1/A2: 401/403 (NFR-06)
-- [x] 30 kiểm thử PASS: luồng đúng · giá trị biên (GWT-06, 07, 13 → 15, phiên 30 phút) · dữ liệu sai (GWT-04, 05, 08)
+- [x] 47 kiểm thử PASS (có cả kiểm thử service bằng repository giả – tài liệu buổi 7, A5): luồng đúng · giá trị biên · dữ liệu sai
 - [x] Giao diện M1 Tạo phiếu · M2 Danh sách · M3 Chi tiết, mỗi màn hình có đang tải · rỗng · lỗi + Thử lại
-- [ ] Chạy phép thử clone vào thư mục trống và làm đúng README (trước buổi 12)
-- [ ] Ảnh chụp luồng end-to-end và ba trạng thái vào `docs/`
+- [x] Phép thử clone vào thư mục trống và làm đúng README
+- [x] Ảnh chụp kết quả chạy trong `docs/`; nhật ký lỗi `docs/bug-log.md`
 - Ghi chú: dùng SQLite thay PostgreSQL vì máy chưa cài PostgreSQL (TD-04)
 
 Quy ước commit: Conventional Commits – `feat`, `fix`, `docs`, `chore`, `refactor`, `test` (TD-03).
+
+Quy ước đặt tên (áp dụng thống nhất cho cả repo):
+- **Tên kỹ thuật bằng tiếng Anh:** thư mục, lớp, thao tác CRUD và truy cập dữ liệu – `TicketService`, `findById`, `create`, `update`, `changeStatus`, `cancel`; khoá JSON của API (`warrantyStatus`, `slaDueAt`).
+- **Tên quy tắc nghiệp vụ bằng tiếng Việt không dấu, theo thuật ngữ SRS và mã quy tắc:** `kiemTraBaoHanh` (BR-02/QT-05), `phanLoai` (BR-04), `tinhHanSla` (BR-05/QT-04), `chuanHoaSoDienThoai` (QT-02), `cheSoDienThoai` (QT-15) – đọc tên hàm là biết quy tắc nào.
+- **Mã nghiệp vụ và giá trị trạng thái** viết HOA không dấu như trong SRS/case study: `MOI`, `DA_HUY`, `CHUA_XAC_MINH`, `PHIEU_DANG_MO`.

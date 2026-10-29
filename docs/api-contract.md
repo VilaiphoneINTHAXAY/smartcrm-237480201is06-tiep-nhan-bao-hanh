@@ -33,3 +33,10 @@ Lỗi chung: **401** phiên hết hạn / chưa đăng nhập (NFR-06) · **403*
 // response 200
 { "code": "BH-0002", "warrantyStatus": "CHUA_XAC_MINH", "isUnverified": true }
 ```
+
+## Bổ sung khi hiện thực BT2 (TD-07 – theo quy tắc của case study)
+- **QT-02:** `phone` ở `GET /api/customers?phone=` và `POST /api/customers` nhận được `+84…`, `84…`, có dấu cách/dấu chấm; hệ thống lưu và trả về dạng chuẩn `0xxxxxxxxx`.
+- **QT-15:** mọi phản hồi có SĐT khách (`customer.phone`, `phone`) trả dạng che `090****567` khi người gọi là nhân viên tiếp nhận (A1); Quản lý (A2) nhận số đầy đủ.
+- **QT-06:** mỗi phiếu có thêm `allowedNextStatuses` – các trạng thái được phép chuyển tiếp theo Hình 6.2; `PATCH /api/tickets/{id}/status` từ chối bước khác bằng **409** `TRANG_THAI_KHONG_HOP_LE`.
+- **QT-13:** không có thao tác xoá vật lý. `DELETE /api/tickets/{id}` với body `{ "note": "lý do" }` = khách huỷ phiếu → `DA_HUY` (**200**; 400 thiếu lý do; 409 phiếu đã qua bước ĐÃ PHÂN CÔNG). `DELETE /api/customers/{id}` = đánh dấu ngừng sử dụng (**204**).
+- **QT-03 + phiếu đang mở:** `POST /api/tickets` với `deviceId` nên gửi kèm `customerId`; máy không thuộc khách đó → **409** `THIET_BI_KHONG_THUOC_KHACH`; máy đang có phiếu chưa kết thúc → **409** `PHIEU_DANG_MO` (cả hai có `field: "deviceId"`).
