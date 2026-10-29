@@ -15,4 +15,6 @@ export const ticketsApi = {
   doiTrangThai: (id, status) => request(`/api/tickets/${id}/status`, { method: 'PATCH', body: { status } }),
   duyetBaoHanh: (id) => request(`/api/tickets/${id}/approve`, { method: 'POST' }),
   tuChoiBaoHanh: (id, note) => request(`/api/tickets/${id}/reject`, { method: 'POST', body: { note } }),
+  // QT-13: không xoá vật lý – khách huỷ phiếu -> DA_HUY, bắt buộc lý do
+  huyPhieu: (id, note) => request(`/api/tickets/${id}`, { method: 'DELETE', body: { note } }),
 };

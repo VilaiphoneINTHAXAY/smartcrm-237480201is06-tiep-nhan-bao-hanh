@@ -6,11 +6,9 @@ const { validateTaoPhieu } = require('../validators/ticket.validator');
 const { kiemTraBaoHanh } = require('../rules/warranty.rule');
 const { phanLoai } = require('../rules/classification.rule');
 const { tinhHanSla } = require('../rules/sla.rule');
-const { toTicketView } = require('./ticket.contract');
+const { toTicketView, CHUYEN_TIEP, DA_KET_THUC } = require('./ticket.contract');
 
-const TRANG_THAI = ['MOI', 'DA_PHAN_CONG', 'DANG_XU_LY', 'HOAN_TAT', 'DA_DONG'];
-// Phiếu chỉ được đi tiến từng bước một, không nhảy cóc, không quay lui.
-const BUOC_TIEP = { MOI: 'DA_PHAN_CONG', DA_PHAN_CONG: 'DANG_XU_LY', DANG_XU_LY: 'HOAN_TAT', HOAN_TAT: 'DA_DONG' };
+const TRANG_THAI = Object.keys(CHUYEN_TIEP);   // 7 trạng thái của Hình 6.2 (QT-06)
 const LECH_VN_MS = 7 * 60 * 60 * 1000;
 
 // Ngày 'YYYY-MM-DD' theo giờ Việt Nam của một thời điểm (dùng cho WarrantyRule).
@@ -30,18 +28,19 @@ class TicketService {
     this.now = now;
   }
 
-  list({ status, unverified } = {}) {
+  // nguoiXem: người đang xem (req.user) – để che SĐT khách theo QT-15.
+  list({ status, unverified } = {}, nguoiXem) {
     if (status && !TRANG_THAI.includes(status)) {
       throw new AppError('DU_LIEU_KHONG_HOP_LE', 'Trạng thái lọc không hợp lệ', 'status');
     }
     const now = this.now();
-    return this.repo.findAll({ status, unverified }).map((r) => toTicketView(r, now));
+    return this.repo.findAll({ status, unverified }).map((r) => toTicketView(r, now, nguoiXem));
   }
 
-  getById(id) {
+  getById(id, nguoiXem) {
     const row = this.repo.findById(id);
     if (!row) throw new AppError('KHONG_TIM_THAY', 'Không tìm thấy phiếu', 'id'); // GWT-19
-    return toTicketView(row, this.now());
+    return toTicketView(row, this.now(), nguoiXem);
   }
 
   getLogs(id) {
@@ -53,7 +52,8 @@ class TicketService {
   create(input, nguoiDung) {
     const data = validateTaoPhieu(input);
     const id = this.repo.transaction(() => {
-      const thietBi = data.deviceId ? this.#layThietBi(data.deviceId) : this.#taoThietBi(data.device);
+      const thietBi = data.deviceId ? this.#layThietBi(data.deviceId, data.customerId) : this.#taoThietBi(data.device);
+      this.#khongCoPhieuDangMo(thietBi.id);
       const luc = this.now();
 
       const bh = kiemTraBaoHanh(
@@ -78,33 +78,39 @@ class TicketService {
       this.repo.addLog({ ticketId, action: 'TAO_PHIEU', toStatus: 'MOI', changedBy: nguoiDung.id, changedAt: luc.toISOString() });
       return ticketId;
     });
-    return this.getById(id);
+    return this.getById(id, nguoiDung);
   }
 
   // Sửa mô tả lỗi khi phiếu chưa xong -> phân loại lại. Hạn SLA KHÔNG tính lại (BR-05: chốt lúc tạo).
-  update(id, input) {
+  update(id, input, nguoiDung) {
     const phieu = this.getById(id);
     this.#phaiConMo(phieu);
     const moTa = typeof input?.issueDescription === 'string' ? input.issueDescription.trim() : '';
     if (!moTa) throw new AppError('DU_LIEU_KHONG_HOP_LE', 'Vui lòng nhập mô tả lỗi', 'issueDescription');
     const pl = phanLoai(moTa, this.repo.findCategories());
     this.repo.updateDescription(id, moTa, pl.categoryId, pl.mucUuTien);
-    return this.getById(id);
+    return this.getById(id, nguoiDung);
   }
 
+  // QT-06: chỉ chuyển theo vòng đời Hình 6.2, không quay lại; mọi lần chuyển đều ghi ticket_status_log.
   changeStatus(id, input, nguoiDung) {
     const phieu = this.getById(id);
     const moi = input?.status;
-    if (BUOC_TIEP[phieu.status] !== moi) {
+    const duocPhep = CHUYEN_TIEP[phieu.status];
+    if (!duocPhep.includes(moi)) {
       throw new AppError('TRANG_THAI_KHONG_HOP_LE',
-        `Phiếu đang ở ${phieu.status}, chỉ chuyển được sang ${BUOC_TIEP[phieu.status] || '(không còn bước nào)'}`, 'status');
+        `Phiếu đang ở ${phieu.status}, chỉ chuyển được sang ${duocPhep.join(' hoặc ') || '(không còn bước nào)'}`, 'status');
+    }
+    const ghiChu = typeof input?.note === 'string' ? input.note.trim() : '';
+    if (moi === 'DA_HUY' && !ghiChu) {
+      throw new AppError('DU_LIEU_KHONG_HOP_LE', 'Phải nhập lý do khi huỷ phiếu', 'note');
     }
     this.repo.transaction(() => {
       this.repo.updateStatus(id, moi);
       this.repo.addLog({ ticketId: id, action: 'DOI_TRANG_THAI', fromStatus: phieu.status, toStatus: moi,
-        note: input.note, changedBy: nguoiDung.id, changedAt: this.now().toISOString() });
+        note: ghiChu || null, changedBy: nguoiDung.id, changedAt: this.now().toISOString() });
     });
-    return this.getById(id);
+    return this.getById(id, nguoiDung);
   }
 
   // GWT-20 / BR-03: chỉ Quản lý TTBH được duyệt phiếu có cờ -> CÒN BẢO HÀNH, bỏ cờ.
@@ -115,7 +121,7 @@ class TicketService {
       this.repo.addLog({ ticketId: id, action: 'DUYET_BAO_HANH', fromStatus: phieu.status, toStatus: phieu.status,
         note: 'Duyệt: CÒN BẢO HÀNH', changedBy: nguoiDung.id, changedAt: this.now().toISOString() });
     });
-    return this.getById(id);
+    return this.getById(id, nguoiDung);
   }
 
   // GWT-10 / BR-06: từ chối bắt buộc có lý do; giữ cờ, lý do vào lịch sử.
@@ -125,22 +131,33 @@ class TicketService {
     if (!lyDo) throw new AppError('DU_LIEU_KHONG_HOP_LE', 'Phải nhập lý do khi từ chối', 'note');
     this.repo.addLog({ ticketId: id, action: 'TU_CHOI_BAO_HANH', fromStatus: phieu.status, toStatus: phieu.status,
       note: lyDo, changedBy: nguoiDung.id, changedAt: this.now().toISOString() });
-    return this.getById(id);
+    return this.getById(id, nguoiDung);
   }
 
-  // Chỉ xoá được phiếu vừa tạo nhầm (còn MOI); phiếu đã xử lý phải giữ để truy vết.
-  remove(id) {
-    const phieu = this.getById(id);
-    if (phieu.status !== 'MOI') {
-      throw new AppError('TRANG_THAI_KHONG_HOP_LE', 'Chỉ xoá được phiếu ở trạng thái MOI', 'status');
-    }
-    this.repo.remove(id);
+  // QT-13: không xoá vật lý phiếu. "Xoá" = khách huỷ -> DA_HUY (chỉ khi còn MOI/DA_PHAN_CONG, QT-06),
+  // bắt buộc có lý do; phiếu và lịch sử vẫn giữ nguyên để truy vết.
+  cancel(id, input, nguoiDung) {
+    return this.changeStatus(id, { status: 'DA_HUY', note: input?.note }, nguoiDung);
   }
 
-  #layThietBi(deviceId) {
+  // QT-03: thiết bị chỉ thuộc một khách – máy được chọn phải là máy của khách đang tiếp nhận.
+  #layThietBi(deviceId, customerId) {
     const tb = this.deviceRepo.findById(deviceId);
     if (!tb) throw new AppError('KHONG_TIM_THAY', 'Không tìm thấy thiết bị', 'deviceId');
+    if (customerId && tb.customer_id !== customerId) {
+      throw new AppError('THIET_BI_KHONG_THUOC_KHACH',
+        'Thiết bị này không thuộc khách hàng đang tiếp nhận. Hãy chọn lại thiết bị của khách hoặc tạo thiết bị mới.', 'deviceId');
+    }
     return tb;
+  }
+
+  // Một thiết bị không có hai phiếu đang mở cùng lúc (ví dụ nghiệp vụ ở slide/tài liệu buổi 7 – TD-07).
+  #khongCoPhieuDangMo(deviceId) {
+    const dangMo = this.repo.findByDevice(deviceId).find((p) => !DA_KET_THUC.includes(p.status));
+    if (dangMo) {
+      throw new AppError('PHIEU_DANG_MO',
+        `Thiết bị này đang có phiếu ${dangMo.code} chưa hoàn tất. Hãy mở phiếu đó thay vì tạo phiếu mới.`, 'deviceId');
+    }
   }
 
   // BR-01: IMEI/Serial không trùng giữa hai thiết bị.
@@ -157,8 +174,8 @@ class TicketService {
   }
 
   #phaiConMo(phieu) {
-    if (['HOAN_TAT', 'DA_DONG'].includes(phieu.status)) {
-      throw new AppError('TRANG_THAI_KHONG_HOP_LE', 'Phiếu đã hoàn tất, không sửa được', 'status');
+    if (DA_KET_THUC.includes(phieu.status)) {
+      throw new AppError('TRANG_THAI_KHONG_HOP_LE', 'Phiếu đã kết thúc (hoàn tất, đóng hoặc huỷ), không sửa được', 'status');
     }
   }
 

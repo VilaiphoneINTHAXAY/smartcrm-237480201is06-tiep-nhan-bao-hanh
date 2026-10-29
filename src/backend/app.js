@@ -23,6 +23,8 @@ const HTTP_STATUS = {
   TRUNG_DU_LIEU: 409,
   DANG_DUOC_SU_DUNG: 409,
   TRANG_THAI_KHONG_HOP_LE: 409,
+  THIET_BI_KHONG_THUOC_KHACH: 409,
+  PHIEU_DANG_MO: 409,
 };
 
 function buildApp(db, { sessionTimeoutMinutes = Number(process.env.SESSION_TIMEOUT_MINUTES) || 30 } = {}) {

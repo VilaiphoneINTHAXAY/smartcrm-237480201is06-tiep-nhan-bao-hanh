@@ -77,8 +77,9 @@ class TicketRepository {
       .run(warrantyStatus, isUnverified ? 1 : 0, id);
   }
 
-  remove(id) {
-    return this.db.prepare('DELETE FROM ticket WHERE id = ?').run(id).changes;
+  // Các phiếu của một thiết bị (mới nhất trước). Phiếu nào "đang mở" do lớp service quyết định.
+  findByDevice(deviceId) {
+    return this.db.prepare('SELECT id, code, status FROM ticket WHERE device_id = ? ORDER BY id DESC').all(deviceId);
   }
 
   addLog({ ticketId, action, fromStatus, toStatus, note, changedBy, changedAt }) {

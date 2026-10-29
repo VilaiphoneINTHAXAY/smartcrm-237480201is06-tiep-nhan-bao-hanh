@@ -12,22 +12,23 @@ function customerRoutes(service) {
   // GET /api/customers            -> danh sách
   // GET /api/customers?phone=...  -> tra cứu theo SĐT (FR-01)
   router.get('/', (req, res) => {
-    if (req.query.phone !== undefined) return res.json({ data: service.findByPhone(req.query.phone) });
-    res.json({ data: service.list() });
+    if (req.query.phone !== undefined) return res.json({ data: service.findByPhone(req.query.phone, req.user) });
+    res.json({ data: service.list(req.user) });
   });
 
   router.get('/:id', (req, res) => {
-    res.json({ data: service.getById(parseId(req)) });
+    res.json({ data: service.getById(parseId(req), req.user) });
   });
 
   router.post('/', (req, res) => {
-    res.status(201).json({ data: service.create(req.body) });
+    res.status(201).json({ data: service.create(req.body, req.user) });
   });
 
   router.put('/:id', (req, res) => {
-    res.json({ data: service.update(parseId(req), req.body) });
+    res.json({ data: service.update(parseId(req), req.body, req.user) });
   });
 
+  // QT-13: xoá mềm (đánh dấu ngừng sử dụng), không xoá vật lý
   router.delete('/:id', (req, res) => {
     service.remove(parseId(req));
     res.status(204).end();

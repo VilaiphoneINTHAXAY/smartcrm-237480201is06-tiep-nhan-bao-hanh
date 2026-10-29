@@ -65,6 +65,7 @@ export default function ReceiveDevicePage({ moPhieu }) {
       };
     } else {
       payload.deviceId = Number(chon);
+      payload.customerId = khach.id;   // QT-03: máy chọn phải thuộc đúng khách vừa tra cứu
     }
     try {
       const phieu = await ticketsApi.tiepNhan(payload);
@@ -141,6 +142,7 @@ export default function ReceiveDevicePage({ moPhieu }) {
                 {khach && <option value="new">+ Thiết bị mới</option>}
               </select>
             </div>
+            {loi('deviceId') && <p className="field-error indent">{loi('deviceId')}</p>}
             <div className="form-row"><label>Model</label>{o('modelName', tb.modelName)}</div>
             {loi('modelName') && <p className="field-error indent">{loi('modelName')}</p>}
             <div className="form-row"><label>IMEI</label>{o('imei', tb.imei, { inputMode: 'numeric' })}

@@ -12,16 +12,16 @@ function ticketRoutes(service) {
 
   // GET /api/tickets?status=MOI&unverified=1  (sắp theo hạn SLA)
   router.get('/', (req, res) => {
-    res.json({ data: service.list({ status: req.query.status, unverified: req.query.unverified === '1' }) });
+    res.json({ data: service.list({ status: req.query.status, unverified: req.query.unverified === '1' }, req.user) });
   });
 
-  router.get('/:id', (req, res) => res.json({ data: service.getById(parseId(req)) }));
+  router.get('/:id', (req, res) => res.json({ data: service.getById(parseId(req), req.user) }));
 
   router.get('/:id/logs', (req, res) => res.json({ data: service.getLogs(parseId(req)) }));
 
   router.post('/', (req, res) => res.status(201).json({ data: service.create(req.body, req.user) }));
 
-  router.put('/:id', (req, res) => res.json({ data: service.update(parseId(req), req.body) }));
+  router.put('/:id', (req, res) => res.json({ data: service.update(parseId(req), req.body, req.user) }));
 
   router.patch('/:id/status', (req, res) => res.json({ data: service.changeStatus(parseId(req), req.body, req.user) }));
 
@@ -29,10 +29,8 @@ function ticketRoutes(service) {
 
   router.post('/:id/reject', (req, res) => res.json({ data: service.rejectWarranty(parseId(req), req.body, req.user) }));
 
-  router.delete('/:id', (req, res) => {
-    service.remove(parseId(req));
-    res.status(204).end();
-  });
+  // QT-13: không xoá vật lý – DELETE nghĩa là khách huỷ phiếu -> DA_HUY, body { note: lý do }
+  router.delete('/:id', (req, res) => res.json({ data: service.cancel(parseId(req), req.body, req.user) }));
 
   return router;
 }
