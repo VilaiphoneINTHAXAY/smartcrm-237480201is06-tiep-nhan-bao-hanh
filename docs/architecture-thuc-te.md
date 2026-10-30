@@ -34,6 +34,20 @@ flowchart TB
   R --> S
   S --> RP
   RP --> DB
+  classDef l1 fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A
+  classDef l2 fill:#DCFCE7,stroke:#16A34A,color:#14532D
+  classDef l3 fill:#FEF3C7,stroke:#D97706,color:#78350F
+  classDef l4 fill:#F3E8FF,stroke:#9333EA,color:#581C87
+  classDef db fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
+  class P,DS,C l1
+  class MW,R,EH l2
+  class V,S,RU l3
+  class RP l4
+  class DB db
+  style L1 fill:#EFF6FF,stroke:#2563EB,stroke-width:2px
+  style L2 fill:#F0FDF4,stroke:#16A34A,stroke-width:2px
+  style L3 fill:#FFFBEB,stroke:#D97706,stroke-width:2px
+  style L4 fill:#FAF5FF,stroke:#9333EA,stroke-width:2px
 ```
 
 | Lớp | Thư mục | Kiểm chứng ranh giới |
