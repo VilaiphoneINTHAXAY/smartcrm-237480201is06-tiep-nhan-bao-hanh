@@ -60,7 +60,7 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 | `db/schema.sql` | DDL PostgreSQL gốc của BT1 (giữ để đối chiếu) |
 | `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bài tập 1 đã nộp |
 
-## Liên kết xem / sửa từng thành phần
+## 4. Liên kết xem / sửa từng thành phần
 
 | Thành phần | Xem trên GitHub | Mở trong draw.io (ai cũng mở được) | Sửa và lưu về GitHub (chủ repo) |
 |---|---|---|---|
@@ -75,7 +75,7 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 6. Trạng thái hiện tại (buổi 12 – 30/10/2026)
+## 5. Trạng thái hiện tại (buổi 12 – 30/10/2026)
 - [x] Ghi quyết định điều chỉnh thiết kế (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-09), trong đó TD-06 sửa SLA theo nhận xét BT1 (QT-04: thứ Hai – thứ Bảy)
 - [x] Migration + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi; mỗi migration chỉ chạy một lần (`schema_migration`)
 - [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories; "xoá" là xoá mềm (QT-13)
