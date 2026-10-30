@@ -38,6 +38,7 @@ npm run dev                 # 9. mở http://localhost:5173
 ```bash
 curl -s http://localhost:3000/health                      # {"status":"ok"}
 curl -s http://localhost:3000/api/tickets                  # 401 CHUA_DANG_NHAP – API nghiệp vụ phải đăng nhập (NFR-06)
+npm run goi-thu                                            # (terminal khác, backend đang chạy) gọi API: 201 · 400 nêu tên trường · 409 PHIEU_DANG_MO
 ```
 Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu bảo hành** → nhập SĐT `0987654321` → bấm **Tra cứu** (phần Thiết bị và Mô tả lỗi chỉ mở sau khi tra cứu được khách) → ở *Thiết bị của khách* chọn **Xiaomi Redmi Note 13 – IMEI 867530912345678** → nhập mô tả "Máy không lên nguồn" → bấm **Lưu phiếu** → thấy khung **Kết quả sau khi lưu** với phiếu `BH-0001`, nhóm *Phần cứng · Cao*, bảo hành *Chưa xác minh* (máy mẫu không có ngày mua). Đăng nhập `ql01` để duyệt.
 
