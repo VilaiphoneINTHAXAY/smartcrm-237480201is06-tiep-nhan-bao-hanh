@@ -55,7 +55,7 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 | `src/frontend/` | Giao diện React: `api/` (lớp gọi API duy nhất), `pages/` (M1–M3, đăng nhập), `components/DataState.jsx` (3 trạng thái) |
 | `migrations/`, `seeds/` | Tạo bảng và dữ liệu mẫu cho SQLite |
 | `tests/` | Bộ kiểm thử (`node --test`) |
-| `docs/` | SRS, sơ đồ .drawio, nhật ký thay đổi thiết kế, khai báo AI |
+| `docs/` | SRS, sơ đồ .drawio của BT1, **sơ đồ kiến trúc đã hiện thực** (`architecture-thuc-te.md`), API (`api-contract.md`), nhật ký thay đổi thiết kế (TD-01 → TD-09), nhật ký lỗi, khai báo AI, ảnh chụp kết quả |
 | `db/schema.sql` | DDL PostgreSQL gốc của BT1 (giữ để đối chiếu) |
 | `BT1_237480201IS06_INTHAXAY_Vilaiphone.pdf` | Bài tập 1 đã nộp |
 
@@ -75,7 +75,7 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
 ## 6. Trạng thái hiện tại (buổi 12 – 30/10/2026)
-- [x] Ghi quyết định điều chỉnh thiết kế (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-08), trong đó TD-06 sửa SLA theo nhận xét BT1 (QT-04: thứ Hai – thứ Bảy)
+- [x] Ghi quyết định điều chỉnh thiết kế (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-09), trong đó TD-06 sửa SLA theo nhận xét BT1 (QT-04: thứ Hai – thứ Bảy)
 - [x] Migration + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi; mỗi migration chỉ chạy một lần (`schema_migration`)
 - [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories; "xoá" là xoá mềm (QT-13)
 - [x] Quy tắc dạng hàm thuần: WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05, QT-04), PhoneRule (QT-02, QT-15)

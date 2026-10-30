@@ -1,5 +1,7 @@
 # API contract – Luồng L2 (track SE)
 
+> Bảng đầu tiên là **thiết kế BT1** (giữ nguyên để đối chiếu). API **đã hiện thực** ở BT2 nằm ở mục cuối; các điểm khác ghi ở TD-09.
+
 Base path `/api` · JSON · mọi endpoint yêu cầu header `Authorization: Bearer <token>`.
 Lỗi chung: **401** phiên hết hạn / chưa đăng nhập (NFR-06) · **403** sai vai trò · **400** dữ liệu sai (body `{ "field": "...", "message": "..." }`).
 
@@ -40,3 +42,24 @@ Lỗi chung: **401** phiên hết hạn / chưa đăng nhập (NFR-06) · **403*
 - **QT-06:** mỗi phiếu có thêm `allowedNextStatuses` – các trạng thái được phép chuyển tiếp theo Hình 6.2; `PATCH /api/tickets/{id}/status` từ chối bước khác bằng **409** `TRANG_THAI_KHONG_HOP_LE`.
 - **QT-13:** không có thao tác xoá vật lý. `DELETE /api/tickets/{id}` với body `{ "note": "lý do" }` = khách huỷ phiếu → `DA_HUY` (**200**; 400 thiếu lý do; 409 phiếu đã qua bước ĐÃ PHÂN CÔNG). `DELETE /api/customers/{id}` = đánh dấu ngừng sử dụng (**204**).
 - **QT-03 + phiếu đang mở:** `POST /api/tickets` với `deviceId` nên gửi kèm `customerId`; máy không thuộc khách đó → **409** `THIET_BI_KHONG_THUOC_KHACH`; máy đang có phiếu chưa kết thúc → **409** `PHIEU_DANG_MO` (cả hai có `field: "deviceId"`).
+
+## API đã hiện thực ở BT2 (tag v0.2)
+Mọi endpoint trừ `/api/auth/login` cần `Authorization: Bearer <token>`. Lỗi: `{ error, message, field?, fields? }` – 400 dữ liệu sai · 401 chưa đăng nhập/hết phiên · 403 sai vai trò · 404 không tìm thấy · 409 trùng / sai trạng thái / phiếu đang mở.
+
+| Method | Endpoint | Vai trò | Việc | Mã thành công |
+|---|---|---|---|---|
+| POST | `/api/auth/login` | – | Đăng nhập, trả token | 200 |
+| GET | `/api/auth/me` · POST `/api/auth/logout` | A1, A2 | Người đang đăng nhập · đăng xuất | 200 · 204 |
+| GET | `/api/customers?phone=` | A1, A2 | Tra cứu khách + thiết bị (FR-01, QT-02) | 200 |
+| GET | `/api/customers` · `/api/customers/{id}` | A1, A2 | Danh sách · chi tiết khách | 200 |
+| POST | `/api/customers` | A1, A2 | Tạo khách (FR-02, BR-07) | 201 |
+| PUT | `/api/customers/{id}` | A1, A2 | Sửa họ tên / SĐT | 200 |
+| DELETE | `/api/customers/{id}` | A1, A2 | Ngừng sử dụng – xoá mềm (QT-13) | 204 |
+| GET | `/api/tickets?status=&unverified=1` | A1, A2 | Danh sách phiếu, sắp theo hạn SLA, có `needsAttention`, `isOverdue` (FR-09) | 200 |
+| GET | `/api/tickets/{id}` · `/api/tickets/{id}/logs` | A1, A2 | Chi tiết phiếu · lịch sử trạng thái (FR-10) | 200 |
+| POST | `/api/tickets` | A1, A2 | Tạo phiếu: `deviceId`+`customerId` hoặc `device` mới, `issueDescription` (FR-03 → FR-08) | 201 |
+| PUT | `/api/tickets/{id}` | A1, A2 | Sửa mô tả lỗi → phân loại lại, SLA giữ nguyên | 200 |
+| PATCH | `/api/tickets/{id}/status` | A1, A2 | Chuyển trạng thái theo Hình 6.2 (QT-06) | 200 |
+| POST | `/api/tickets/{id}/approve` · `/reject` | A2 | Duyệt / từ chối bảo hành (FR-06, BR-06) | 200 |
+| DELETE | `/api/tickets/{id}` | A1, A2 | Khách huỷ phiếu → DA_HUY, body `{ note }` (QT-13) | 200 |
+
