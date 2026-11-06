@@ -2,7 +2,7 @@
 
 > Sinh viên: INTHAXAY Vilaiphone · MSSV 237480201IS06 · Lớp 71K29CNTT17 · Track SE
 >
-> Mỗi mục ghi theo mẫu bảy dòng của buổi 11. Chỉ ghi những lỗi **đã thực sự gặp và gỡ** trong quá trình làm BT2
+> Mỗi mục ghi theo mẫu bảy dòng của buổi 11 / buổi 13. BUG-001 → BUG-004 gặp ở BT2 (buổi 9–10); BUG-005 trở đi phát hiện khi chạy Test Report của **Bài tập 3** (`docs/test-report.md`). Chỉ ghi những lỗi **đã thực sự gặp và gỡ** trong quá trình làm BT2
 > (buổi 9–10). Mã yêu cầu (US, GWT, FR, NFR, BR) lấy từ đặc tả BT1 – `docs/srs.md`.
 >
 > Về dòng 7: ba lỗi dưới đây nằm ở giao diện (React); dự án **chưa có bộ test tự động cho frontend**, nên việc xác
@@ -15,6 +15,7 @@
 | BUG-002 | Major | Frontend chạy ở cổng khác 5173 → mọi màn hình báo mất kết nối (CORS) | Ràng buộc kỹ thuật 1.5, README |
 | BUG-003 | Minor | Nhấn Enter ở ô Số điện thoại (M1) gửi form tạo phiếu thay vì tra cứu khách | US01, GWT-01, GWT-02 |
 | BUG-004 | Minor | Bấm "Thử lại" khi vẫn lỗi trông như không có tác dụng | Trạng thái lỗi M1–M3 (wireframe) |
+| BUG-005 | **Critical** | Nhân viên sửa / đổi trạng thái / huỷ được phiếu do nhân viên KHÁC tạo (A01 OWASP) | NFR-06, đề BT3 mục S2 |
 
 ---
 
@@ -65,3 +66,15 @@
 | 5. Nguyên nhân | `DataState` (trạng thái lỗi) chỉ hiện thông điệp lỗi cố định; request thử lại thất bại rất nhanh nên trạng thái "đang tải" chỉ chớp trong vài mili-giây, kết quả hiển thị không đổi |
 | 6. Cách sửa | `src/frontend/src/components/DataState.jsx`: thêm dòng "Lần thử gần nhất lúc HH:MM:SS" — mỗi lần thử lại, giờ thay đổi, người dùng thấy hệ thống đã thử |
 | 7. Commit và xác nhận | Commit: [b134273](https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/commit/b134273) · Xác nhận thủ công: lặp lại dòng 4 → giờ "Lần thử gần nhất" đổi sau mỗi lần bấm |
+
+## BUG-005 · Critical — Nhân viên sửa / đổi trạng thái / huỷ được phiếu do nhân viên khác tạo (A01 OWASP)
+
+| Dòng | Nội dung |
+|---|---|
+| 1. Mã và mức độ | BUG-005 · **Critical** — lỗ hổng kiểm soát truy cập (A01:2025 Broken Access Control); dữ liệu phiếu bị người không có quyền thay đổi thật. Phân loại theo câu hỏi 1 của cây phân loại buổi 13: "dữ liệu bị sai hoặc có lỗ hổng bảo mật" → Critical |
+| 2. Phát hiện bởi | **TC-11** trong Test Report BT3 (`tests/a01.chu-so-huu.test.js`) – lần chạy đầu FAIL: `200 !== 403` (ảnh `docs/screenshots/TC-11-FAIL.png`) |
+| 3. Triệu chứng | Nhân viên tiếp nhận `nv02` gọi `PUT /api/tickets/:id` (sửa mô tả lỗi) và `DELETE /api/tickets/:id` (huỷ phiếu) với phiếu do `nv01` tạo → API trả **200** và phiếu bị đổi thật; `PATCH /api/tickets/:id/status` cũng đổi được trạng thái |
+| 4. Cách tái lập | 1) `npm run migrate` (seed có `nv01`, `nv02`, mật khẩu `Demo@123`); 2) đăng nhập `nv01`, tạo phiếu cho khách `0901234567` → nhận `id`; 3) đăng nhập `nv02`, gọi `PUT /api/tickets/<id>` thân `{"issueDescription":"Đã bị sửa"}` → 200 (5/5 lần). Tự động: `node --test --test-name-pattern="TC-11"` |
+| 5. Nguyên nhân | Trong `src/backend/services/ticket.service.js`, các hàm `update()` và `changeStatus()` (hàm `cancel()` gọi lại `changeStatus()`) chỉ kiểm phiếu **có tồn tại** và **trạng thái hợp lệ**, KHÔNG so người gọi với cột `ticket.created_by`. Middleware `auth.js` đã gắn `req.user` và routes đã truyền xuống service, nhưng service chỉ dùng `req.user` để che SĐT (QT-15), không dùng để kiểm quyền. Chỉ `approveWarranty` / `rejectWarranty` có kiểm vai trò |
+| 6. Cách sửa | Thêm hàm riêng `#chiNguoiTaoHoacQuanLy(id, nguoiDung)` trong `ticket.service.js`: đọc phiếu từ repository, nếu người gọi không phải `QUAN_LY` và `created_by !== nguoiDung.id` thì ném `AppError('KHONG_DU_QUYEN', …)` (bảng lỗi ở `app.js` đã ánh xạ sẵn → 403). Gọi ở đầu `update()` và `changeStatus()` – `cancel()` đi qua `changeStatus()` nên được chặn theo. Kiểm ở service (không ở route) để mọi lối vào đều bị chặn như nhau. Thêm 2 test: **TC-11b** (người tạo và Quản lý vẫn sửa được – bản sửa không làm hỏng luồng đúng) và test hồi quy `PATCH /status` của người khác → 403 |
+| 7. Commit và xác nhận | Commit: [962a8e8](https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/commit/962a8e822f5da2acec87d7fd1e026d6db125c79e) (`fix(ticket): … (BUG-005)`) · Chạy lại TC-11 → 403 `KHONG_DU_QUYEN`, mô tả và trạng thái phiếu trong CSDL không đổi → **PASS**; TC-11b PASS; `npm test`: **50/50 PASS** (ảnh `docs/screenshots/TC-11-PASS.png`) |
