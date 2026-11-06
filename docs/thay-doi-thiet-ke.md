@@ -61,3 +61,19 @@
 - Lý do           : (1)(2) Duyệt/từ chối và ghi lịch sử luôn chạy trong cùng một giao dịch với bảng ticket – gộp lại thì một repository mở một transaction, ít lớp mỏng không có logic. (3) Mọi lối vào (API, kiểm thử, script) đều bị kiểm định dạng, không phụ thuộc route có nhớ gọi validator hay không. (5) id là khoá chính số nguyên, không phụ thuộc định dạng mã phiếu (mã đã đổi ở TD-05); tách approve/reject cho mỗi endpoint một việc, dễ phân quyền và dễ test.
 - Ảnh hưởng       : Thêm docs/architecture-thuc-te.md + .png (sơ đồ theo mã thực tế, ghi thư mục của từng lớp); docs/api-contract.md thêm bảng "API đã hiện thực"; architecture.drawio và bảng API cũ của BT1 giữ nguyên để đối chiếu. Không đổi ERD (6 bảng) ngoài các cột ở TD-04, TD-07. (.gitignore đã chặn data/*.db từ trước nên CSDL SQLite cục bộ không bị commit.)
 
+
+## Sau nhận xét Bài tập 2 của giảng viên (buổi 14, ngày 06/11/2026)
+
+> Kết quả BT2: 9,0/10 – mục kiểm chứng bảng 4.2 đạt đủ (chung + track SE). Nhận xét "Cần khắc phục" có hai ý; mỗi ý một quyết định dưới đây.
+
+### TD-10  Phản hồi BT2: đóng gói Docker và đo chỉ tiêu NFR hiệu năng
+- Phản hồi của GV : (1) "Chưa có Docker (không bắt buộc)". (2) "Chưa đo các chỉ tiêu NFR hiệu năng (em đã ghi nhận)".
+- Quyết định      : (1) SỬA – thêm Dockerfile và docker-compose.yml ở BT3 (thành phần 4, mục C1), hệ thống lên bằng ≤ 2 lệnh, có healthcheck và dữ liệu mẫu nạp tự động. (2) SỬA MỘT PHẦN – đo thời gian phản hồi của API chính trên máy cá nhân (số lần gọi, trung bình, p95) và ghi số đo thật; KHÔNG làm kiểm thử tải/đồng thời đầy đủ.
+- Lý do           : (1) Đề BT3 mục 2.4 yêu cầu gói đóng gói tái lập được – đây là mục kiểm chứng cốt lõi. (2) Đề BT3 mục 1 ghi kiểm thử tải thuộc Chuyên đề tốt nghiệp 2; một phép đo đơn giản vẫn trả lời được câu hỏi "NFR-01 đạt hay chưa" bằng số liệu thay vì phỏng đoán.
+- Ảnh hưởng       : Dockerfile, docker-compose.yml, .env.example, README (đúng 2 lệnh), docs/deployment-guide.md; docs/test-plan.md mục 1 ghi phần đo hiệu năng nằm ngoài phạm vi kiểm thử chức năng.
+
+### TD-11  Thêm nhân viên mẫu thứ hai và kiểm soát truy cập theo người tạo phiếu (A01 OWASP)
+- Phản hồi của GV : Không có góp ý riêng. Đề BT3 mục S2 yêu cầu test kiểm quyền truy cập theo chủ sở hữu.
+- Quyết định      : SỬA – seeds/001_demo.sql thêm nhân viên tiếp nhận nv02 (mật khẩu demo như nv01) để có hai tài khoản cùng vai trò; thêm tests/a01.chu-so-huu.test.js (TC-11). Quy tắc kiểm: chỉ người tạo phiếu (cột created_by đã có từ BT1) hoặc Quản lý được sửa / huỷ phiếu.
+- Lý do           : Với một nhân viên mẫu thì không kiểm được "người dùng A sửa bản ghi của người dùng B". Cột created_by đã có trong ERD nên không đổi lược đồ.
+- Ảnh hưởng       : seeds/001_demo.sql; tests/a01.chu-so-huu.test.js. Lần chạy đầu TC-11 FAIL (nv02 sửa được phiếu của nv01, trả 200) – ghi BUG-005 trong docs/bug-log.md, sửa ở commit riêng.
