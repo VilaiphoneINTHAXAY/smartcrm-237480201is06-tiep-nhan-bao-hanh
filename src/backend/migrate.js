@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { openDb } = require('./db');
+const { hashMatKhau } = require('./security/password');
 
 // Tệp trong migrations/ chỉ chạy MỘT lần cho mỗi CSDL: tên tệp đã chạy được ghi vào bảng schema_migration.
 // (Cần thiết từ 002 trở đi vì ALTER TABLE không chạy lại được.) 001 dùng IF NOT EXISTS nên CSDL cũ
@@ -39,10 +40,23 @@ function runSeeds(db, folder, quiet) {
   }
 }
 
+// Đặt mật khẩu DEMO cho tài khoản mẫu (BUG-006): băm trong JS với salt ngẫu nhiên RIÊNG cho từng tài khoản,
+// thay cho seeds/002_demo_password.sql cũ (một chuỗi băm cố định, dùng chung salt 'mekong-demo-salt').
+// Chỉ đụng tới dòng còn mật khẩu tạm 'chua-dat' hoặc còn chuỗi băm cũ -> chạy lại lần hai không đổi gì (C5).
+const MAT_KHAU_DEMO = process.env.DEMO_PASSWORD || 'Demo@123';
+function datMatKhauDemo(db, quiet) {
+  const canDat = db.prepare(
+    "SELECT id FROM app_user WHERE password_hash = 'chua-dat' OR password_hash LIKE 'scrypt$mekong-demo-salt$%'").all();
+  const capNhat = db.prepare('UPDATE app_user SET password_hash = ? WHERE id = ?');
+  for (const { id } of canDat) capNhat.run(hashMatKhau(MAT_KHAU_DEMO), id);
+  if (!quiet) console.log(`  ✔ mật khẩu demo: đặt cho ${canDat.length} tài khoản (salt riêng từng tài khoản)`);
+}
+
 function migrate(db, { quiet = false } = {}) {
   const root = path.join(__dirname, '..', '..');   // thư mục gốc của repo
   runMigrations(db, path.join(root, 'migrations'), quiet);
   runSeeds(db, path.join(root, 'seeds'), quiet);
+  datMatKhauDemo(db, quiet);
 }
 
 if (require.main === module) {

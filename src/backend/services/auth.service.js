@@ -4,14 +4,7 @@
 const crypto = require('node:crypto');
 const AppError = require('../errors/AppError');
 
-// So mật khẩu với chuỗi 'scrypt$<salt>$<hash>'. timingSafeEqual để thời gian so không lộ thông tin.
-function dungMatKhau(matKhau, chuoiHash) {
-  const [thuatToan, salt, hash] = String(chuoiHash).split('$');
-  if (thuatToan !== 'scrypt' || !salt || !hash) return false;
-  const tinh = crypto.scryptSync(String(matKhau), salt, 32);
-  const luu = Buffer.from(hash, 'hex');
-  return luu.length === tinh.length && crypto.timingSafeEqual(luu, tinh);
-}
+const { dungMatKhau } = require('../security/password');
 
 class AuthService {
   /**
