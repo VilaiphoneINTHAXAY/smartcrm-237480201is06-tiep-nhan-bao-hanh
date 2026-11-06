@@ -60,9 +60,13 @@ test('Dữ liệu sai (GWT-05): mô tả lỗi chỉ có khoảng trắng -> t�
 });
 
 test('TC-08 Dữ liệu sai (GWT-04): IMEI 14 chữ số -> báo lỗi tại trường imei', () => {
-  const { service, khachId } = setup();
+  const { db, service, khachId } = setup();
+  const dem = (b) => db.prepare(`SELECT COUNT(*) AS n FROM ${b}`).get().n;
+  const truoc = { ticket: dem('ticket'), device: dem('device') };
   assert.throws(() => service.create({ issueDescription: 'Mất sóng', device: mayMoi(khachId, { imei: '49015420323751' }) }, NV),
     { code: 'DU_LIEU_KHONG_HOP_LE', field: 'imei' });
+  // tác dụng phụ: không có dòng mới trong ticket và device
+  assert.deepEqual({ ticket: dem('ticket'), device: dem('device') }, truoc);
 });
 
 test('GWT-08 trong giao dịch: ngày mua sau ngày tiếp nhận -> từ chối VÀ không để lại thiết bị rác', () => {

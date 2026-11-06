@@ -11,6 +11,7 @@
     "start": "node --env-file-if-exists=.env src/backend/server.js",
     "migrate": "node --env-file-if-exists=.env src/backend/migrate.js",
     "test": "node --test",
+    "tc": "node --test --test-name-pattern",
     "goi-thu": "node --env-file-if-exists=.env scripts/goi-thu-api.js"
   },
   "repository": {
@@ -31,4 +32,4 @@
   "engines": {
     "node": ">=22.13"
   }
-}
+}

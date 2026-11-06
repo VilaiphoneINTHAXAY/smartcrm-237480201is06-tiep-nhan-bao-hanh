@@ -7,8 +7,9 @@ const { buildApp } = require('../src/backend/app');
 
 let server;
 let base;
+let db;
 before(async () => {
-  const db = openDb(':memory:');
+  db = openDb(':memory:');
   migrate(db, { quiet: true });
   server = buildApp(db).listen(0); // cổng ngẫu nhiên, không đụng server đang chạy của em
   await new Promise((r) => server.once('listening', r));
@@ -54,7 +55,11 @@ test('Luồng API: nhân viên tạo phiếu (201); duyệt bảo hành bằng v
 
 test('TC-10 C7: dữ liệu sai -> 400 kèm fields theo tên trường, không phải lỗi thô 500', async () => {
   const nv = await dangNhap('nv01');
+  const soPhieuTruoc = db.prepare('SELECT COUNT(*) AS n FROM ticket').get().n;
   const r = await goi('/api/tickets', { method: 'POST', token: nv, body: { deviceId: 1, issueDescription: '' } });
   assert.equal(r.status, 400);
   assert.deepEqual(r.body.fields, { issueDescription: 'Vui lòng nhập mô tả lỗi' });
+  assert.doesNotMatch(JSON.stringify(r.body), /at |\.js:|SELECT|sqlite/i);   // S4: không lộ stack trace / SQL
+  // tác dụng phụ: không có dòng mới trong bảng ticket
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM ticket').get().n, soPhieuTruoc);
 });
