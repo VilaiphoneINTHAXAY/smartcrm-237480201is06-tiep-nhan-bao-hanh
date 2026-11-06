@@ -20,6 +20,7 @@
 | QT-15 | Che SĐT với nhân viên tiếp nhận | `rules/phone.rule.js` |
 | NFR-06 | Đăng nhập, phiên 30 phút, 401/403 | `services/auth.service.js`, `middleware/auth.js` |
 | A01 (S2) | Chỉ người tạo phiếu hoặc Quản lý được sửa / huỷ phiếu | `services/ticket.service.js` |
+| A04 (S3) | Mật khẩu băm scrypt, salt ngẫu nhiên riêng từng tài khoản | `security/password.js`, `migrate.js` |
 
 **CHỦ Ý KHÔNG kiểm (kèm lý do):**
 - **Giao diện React bằng test tự động** – các màn hình chỉ gọi API qua `api/client.js`, mọi quy tắc nằm ở backend và đã được kiểm qua API; ba trạng thái màn hình đã có ảnh chụp ở BT2. Kiểm thử giao diện tự động thuộc Chuyên đề tốt nghiệp 2.
@@ -28,7 +29,7 @@
 
 ## 2. Loại test và số lượng mỗi tầng
 
-Bộ kiểm thử tự động: **49 test** trong 11 tệp `tests/*.test.js` (`node:test`, không cần cài thêm gói). Test Report trình bày chi tiết **12 test case** đại diện, đặt mã TC-01 … TC-12 ngay trong tên test:
+Bộ kiểm thử tự động: **53 test** trong 12 tệp `tests/*.test.js` (`node:test`, không cần cài thêm gói). Test Report trình bày chi tiết **12 test case** đại diện, đặt mã TC-01 … TC-12 ngay trong tên test:
 
 | Tầng | Số TC | Mã |
 |---|---|---|
@@ -45,13 +46,13 @@ Bộ kiểm thử tự động: **49 test** trong 11 tệp `tests/*.test.js` (`n
 ## 3. Tiêu chí thành công (đặt trước khi chạy)
 
 1. 12/12 test case có kết quả thực tế ghi bằng số liệu và ảnh chụp trong `docs/screenshots/`.
-2. Mỗi quy tắc ở mục 1 có **≥ 1 test** trong bộ 49 test (bảng truy vết ở `docs/test-report.md`).
+2. Mỗi quy tắc ở mục 1 có **≥ 1 test** trong bộ 53 test (bảng truy vết ở `docs/test-report.md`).
 3. `npm test` PASS toàn bộ sau khi sửa bug; không còn bug **Critical** nào đang mở.
 4. Bug Major còn lại (nếu có) ghi rõ lý do chưa sửa và hướng xử lý.
 
 ## 4. Môi trường và dữ liệu thử
 
-- Node.js ≥ 22.13 (đã chạy với Node.js 24 LTS trên Windows 11); lệnh: `npm test`. Chạy lại một test case: `node --test --test-name-pattern="TC-04"`.
+- Node.js ≥ 22.13 (đã chạy với Node.js 24 LTS trên Windows 11); lệnh: `npm test`. Chạy lại một test case: `npm run tc -- TC-04` (tương đương `node --test --test-name-pattern TC-04`).
 - Dữ liệu dựng bằng code, không phụ thuộc máy: mỗi tệp test mở **SQLite trong bộ nhớ** (`openDb(':memory:')`), chạy `migrate()` (2 migration + 3 seed: 3 khách, 3 thiết bị, 5 nhóm sự cố, tài khoản `nv01`, `nv02`, `ql01` / `Demo@123`). Test đơn vị dùng repository giả và đồng hồ cố định, thời điểm ghi kèm `+07:00`.
 - Test API mở ứng dụng ở cổng ngẫu nhiên (`listen(0)`), không đụng server đang chạy và không dùng `data/smartcrm.db`.
 - Sau khi có Docker (buổi 15): lặp lại `npm test` trong container – ghi ở `docs/deployment-guide.md`.
