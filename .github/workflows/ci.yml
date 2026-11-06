@@ -1,0 +1,46 @@
+# CI – chạy kiểm thử tự động mỗi lần push / mở pull request (đề BT3 mục 2.2, slide buổi 13 mục 7).
+# Node phải >= 22.13 vì hệ thống dùng module có sẵn node:sqlite – KHÔNG dùng Node 20 như ví dụ mẫu.
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend – migrate x2 + npm test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: cp .env.example .env
+      - name: Migrate hai lần (C5 – không lỗi, không nhân đôi dữ liệu)
+        run: |
+          npm run migrate
+          npm run migrate
+      - run: npm test
+
+  frontend:
+    name: Frontend – build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: src/frontend/package-lock.json
+      - run: npm ci
+      - run: cp .env.example .env
+      - run: npm run build
