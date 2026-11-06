@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { chuanHoaSoDienThoai, cheSoDienThoai } = require('../src/backend/rules/phone.rule');
 
-test('QT-02 luồng đúng: bốn dạng nhập đều quy về 0901234567', () => {
+test('TC-06 QT-02 luồng đúng: bốn dạng nhập đều quy về 0901234567', () => {
   for (const s of ['0901234567', '+84901234567', '84901234567', '090 123 4567', '090.123.4567', ' +84 90-123-4567 ']) {
     assert.equal(chuanHoaSoDienThoai(s), '0901234567', s);
   }

@@ -7,7 +7,7 @@ const { tinhHanSla } = require('../src/backend/rules/sla.rule');
 // Viết thời điểm kèm +07:00 để test cho kết quả giống nhau trên mọi máy.
 const vn = (s) => new Date(`${s}+07:00`);
 
-test('GWT-14 luồng đúng: THAP, thứ Hai 05/10 10:00 -> thứ Bảy 10/10 10:00 (thứ Bảy là ngày làm việc)', () => {
+test('TC-02 GWT-14 luồng đúng: THAP, thứ Hai 05/10 10:00 -> thứ Bảy 10/10 10:00 (thứ Bảy là ngày làm việc)', () => {
   const han = tinhHanSla(vn('2026-10-05T10:00:00'), 'THAP');
   assert.equal(han.getTime(), vn('2026-10-10T10:00:00').getTime());
 });

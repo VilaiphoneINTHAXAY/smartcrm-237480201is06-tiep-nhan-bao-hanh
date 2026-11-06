@@ -11,7 +11,7 @@ const DANH_MUC = [
   { id: 5, name: 'Khác', keywords: '', default_priority: 'TRUNG_BINH', match_order: 99 },
 ];
 
-test('GWT-11 luồng đúng: "Máy bị TREO logo" -> Phần mềm, TRUNG_BINH (không phân biệt hoa/thường)', () => {
+test('TC-01 GWT-11 luồng đúng: "Máy bị TREO logo" -> Phần mềm, TRUNG_BINH (không phân biệt hoa/thường)', () => {
   const r = phanLoai('Máy bị TREO logo', DANH_MUC);
   assert.deepEqual(r, { categoryId: 2, tenNhom: 'Phần mềm', mucUuTien: 'TRUNG_BINH' });
 });

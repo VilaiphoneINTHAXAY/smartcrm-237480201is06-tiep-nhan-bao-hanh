@@ -29,7 +29,7 @@ function taoService({ phieuCuaThietBi = [] } = {}) {
   return { service: new TicketService(ticketRepo, deviceRepo, () => LUC), daGhi };
 }
 
-test('Repo giả – dữ liệu sai: thiết bị đang có phiếu MOI -> PHIEU_DANG_MO, không ghi gì xuống CSDL', () => {
+test('TC-09 Repo giả – dữ liệu sai: thiết bị đang có phiếu MOI -> PHIEU_DANG_MO, không ghi gì xuống CSDL', () => {
   const { service, daGhi } = taoService({ phieuCuaThietBi: [{ id: 9, code: 'BH-0009', status: 'MOI' }] });
   assert.throws(() => service.create({ issueDescription: 'Máy nóng', deviceId: 5, customerId: 7 }, NV),
     (err) => err.code === 'PHIEU_DANG_MO' && err.message.includes('BH-0009'));

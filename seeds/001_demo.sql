@@ -11,7 +11,8 @@ INSERT OR IGNORE INTO issue_category (name, keywords, default_priority, match_or
 -- Người dùng mẫu (mật khẩu demo sẽ được đặt ở buổi sau khi làm đăng nhập)
 INSERT OR IGNORE INTO app_user (username, full_name, role, password_hash) VALUES
  ('nv01', 'Nguyễn An',  'TIEP_NHAN', 'chua-dat'),
- ('ql01', 'Trần Bình',  'QUAN_LY',   'chua-dat');
+ ('ql01', 'Trần Bình',  'QUAN_LY',   'chua-dat'),
+ ('nv02', 'Phạm Dũng',  'TIEP_NHAN', 'chua-dat');  -- BT3: nhân viên thứ hai để kiểm quyền theo chủ sở hữu (A01)
 
 -- Khách hàng mẫu
 INSERT OR IGNORE INTO customer (full_name, phone) VALUES

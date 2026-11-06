@@ -26,7 +26,7 @@ const mayMoi = (khachId, extra = {}) => ({
   customerId: khachId, modelName: 'Oppo A79', imei: '490154203237518', purchaseDate: '2026-05-01', ...extra,
 });
 
-test('Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nhóm Phần cứng/CAO, hạn SLA thứ Bảy, có lịch sử', () => {
+test('TC-07 Luồng đúng (FR-03, 04, 07, 08): tạo phiếu -> CÒN bảo hành, nhóm Phần cứng/CAO, hạn SLA thứ Bảy, có lịch sử', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Màn hình bị sọc xanh', device: mayMoi(khachId) }, NV);
   assert.match(p.code, /^BH-\d{4,}$/);
@@ -59,7 +59,7 @@ test('Dữ liệu sai (GWT-05): mô tả lỗi chỉ có khoảng trắng -> t�
   assert.equal(service.list().length, 0);
 });
 
-test('Dữ liệu sai (GWT-04): IMEI 14 chữ số -> báo lỗi tại trường imei', () => {
+test('TC-08 Dữ liệu sai (GWT-04): IMEI 14 chữ số -> báo lỗi tại trường imei', () => {
   const { service, khachId } = setup();
   assert.throws(() => service.create({ issueDescription: 'Mất sóng', device: mayMoi(khachId, { imei: '49015420323751' }) }, NV),
     { code: 'DU_LIEU_KHONG_HOP_LE', field: 'imei' });

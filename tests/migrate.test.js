@@ -9,7 +9,7 @@ const { migrate } = require('../src/backend/migrate');
 const goc = path.join(__dirname, '..');
 const dem = (db, bang) => db.prepare(`SELECT COUNT(*) AS n FROM ${bang}`).get().n;
 
-test('C5: chạy migrate hai lần không lỗi, số dòng giữ nguyên, mỗi migration chỉ chạy một lần', () => {
+test('TC-12 C5: chạy migrate hai lần không lỗi, số dòng giữ nguyên, mỗi migration chỉ chạy một lần', () => {
   const db = openDb(':memory:');
   migrate(db, { quiet: true });
   const truoc = ['customer', 'device', 'issue_category', 'app_user'].map((b) => dem(db, b));

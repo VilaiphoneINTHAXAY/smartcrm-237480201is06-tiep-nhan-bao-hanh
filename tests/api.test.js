@@ -52,7 +52,7 @@ test('Luồng API: nhân viên tạo phiếu (201); duyệt bảo hành bằng v
   assert.equal(duyet.body.error, 'KHONG_DU_QUYEN');
 });
 
-test('C7: dữ liệu sai -> 400 kèm fields theo tên trường, không phải lỗi thô 500', async () => {
+test('TC-10 C7: dữ liệu sai -> 400 kèm fields theo tên trường, không phải lỗi thô 500', async () => {
   const nv = await dangNhap('nv01');
   const r = await goi('/api/tickets', { method: 'POST', token: nv, body: { deviceId: 1, issueDescription: '' } });
   assert.equal(r.status, 400);

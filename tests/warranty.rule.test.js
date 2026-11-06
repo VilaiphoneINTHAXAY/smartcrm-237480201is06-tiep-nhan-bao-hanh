@@ -5,18 +5,18 @@ const { kiemTraBaoHanh, tinhNgayHetHan } = require('../src/backend/rules/warrant
 
 const tb = (ngayMua, soThangBaoHanh = 12) => ({ ngayMua, soThangBaoHanh });
 
-test('Luồng đúng: mua 15/01/2026, bảo hành 12 tháng, tiếp nhận 08/09/2026 -> CÒN bảo hành', () => {
+test('TC-03 Luồng đúng: mua 15/01/2026, bảo hành 12 tháng, tiếp nhận 08/09/2026 -> CÒN bảo hành', () => {
   const r = kiemTraBaoHanh(tb('2026-01-15'), '2026-09-08');
   assert.equal(r.warrantyStatus, 'CON_BAO_HANH');
   assert.equal(r.ngayHetHan, '2027-01-15');
 });
 
-test('GWT-06 giá trị biên: tiếp nhận ĐÚNG ngày hết hạn vẫn CÒN bảo hành', () => {
+test('TC-04 GWT-06 giá trị biên: tiếp nhận ĐÚNG ngày hết hạn vẫn CÒN bảo hành', () => {
   const r = kiemTraBaoHanh(tb('2025-10-23'), '2026-10-23');
   assert.equal(r.warrantyStatus, 'CON_BAO_HANH');
 });
 
-test('GWT-07 giá trị biên: tiếp nhận ngày kế tiếp sau ngày hết hạn -> HẾT bảo hành', () => {
+test('TC-05 GWT-07 giá trị biên: tiếp nhận ngày kế tiếp sau ngày hết hạn -> HẾT bảo hành', () => {
   const r = kiemTraBaoHanh(tb('2025-10-23'), '2026-10-24');
   assert.equal(r.warrantyStatus, 'HET_BAO_HANH');
 });
