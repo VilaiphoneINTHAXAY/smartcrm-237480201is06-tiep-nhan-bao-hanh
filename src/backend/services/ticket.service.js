@@ -83,6 +83,7 @@ class TicketService {
 
   // Sửa mô tả lỗi khi phiếu chưa xong -> phân loại lại. Hạn SLA KHÔNG tính lại (BR-05: chốt lúc tạo).
   update(id, input, nguoiDung) {
+    this.#chiNguoiTaoHoacQuanLy(id, nguoiDung);   // A01 – BUG-005
     const phieu = this.getById(id);
     this.#phaiConMo(phieu);
     const moTa = typeof input?.issueDescription === 'string' ? input.issueDescription.trim() : '';
@@ -94,6 +95,7 @@ class TicketService {
 
   // QT-06: chỉ chuyển theo vòng đời Hình 6.2, không quay lại; mọi lần chuyển đều ghi ticket_status_log.
   changeStatus(id, input, nguoiDung) {
+    this.#chiNguoiTaoHoacQuanLy(id, nguoiDung);   // A01 – BUG-005 (cancel() cũng đi qua đây)
     const phieu = this.getById(id);
     const moi = input?.status;
     const duocPhep = CHUYEN_TIEP[phieu.status];
@@ -176,6 +178,16 @@ class TicketService {
   #phaiConMo(phieu) {
     if (DA_KET_THUC.includes(phieu.status)) {
       throw new AppError('TRANG_THAI_KHONG_HOP_LE', 'Phiếu đã kết thúc (hoàn tất, đóng hoặc huỷ), không sửa được', 'status');
+    }
+  }
+
+  // A01 OWASP (BUG-005): chỉ người tạo phiếu (cột created_by) hoặc Quản lý được sửa / đổi trạng thái / huỷ phiếu.
+  // Kiểm ở service (không ở route) để mọi lối vào – API, script, test – đều bị chặn như nhau.
+  #chiNguoiTaoHoacQuanLy(id, nguoiDung) {
+    const row = this.repo.findById(id);
+    if (!row) throw new AppError('KHONG_TIM_THAY', 'Không tìm thấy phiếu', 'id');
+    if (nguoiDung?.role !== 'QUAN_LY' && row.created_by !== nguoiDung?.id) {
+      throw new AppError('KHONG_DU_QUYEN', 'Chỉ người tạo phiếu hoặc Quản lý TTBH được sửa phiếu này');
     }
   }
 

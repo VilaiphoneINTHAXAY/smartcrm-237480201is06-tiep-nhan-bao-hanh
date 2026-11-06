@@ -57,7 +57,7 @@ test('TC-11 A01: nhân viên KHÁC (nv02) sửa hoặc huỷ phiếu của nv01 
   assert.deepEqual({ ...docPhieu(id) }, { issue_description: 'Màn hình bị sọc xanh', status: 'MOI' });
 });
 
-test('A01 (luồng đúng): người tạo phiếu (nv01) và Quản lý (ql01) vẫn sửa được', async () => {
+test('TC-11b A01 (luồng đúng): người tạo phiếu (nv01) và Quản lý (ql01) vẫn sửa được', async () => {
   const nv01 = await dangNhap('nv01');
   const ql01 = await dangNhap('ql01');
   const khach = (await goi('/api/customers?phone=0912345678', { token: nv01 })).body.data;
@@ -71,4 +71,17 @@ test('A01 (luồng đúng): người tạo phiếu (nv01) và Quản lý (ql01) 
   const qlSua = await goi(`/api/tickets/${id}`, { method: 'PUT', token: ql01, body: { issueDescription: 'Máy bị treo logo, đã thử sạc' } });
   assert.equal(qlSua.status, 200);
   assert.equal(docPhieu(id).issue_description, 'Máy bị treo logo, đã thử sạc');
+});
+
+test('A01 hồi quy (BUG-005): nhân viên khác đổi trạng thái phiếu của nv01 -> 403, trạng thái giữ MOI', async () => {
+  const nv01 = await dangNhap('nv01');
+  const nv02 = await dangNhap('nv02');
+  const khach = (await goi('/api/customers?phone=0987654321', { token: nv01 })).body.data;
+  const tao = await goi('/api/tickets', { method: 'POST', token: nv01,
+    body: { customerId: khach.id, deviceId: khach.devices[0].id, issueDescription: 'Loa rè' } });
+  assert.equal(tao.status, 201);
+  const r = await goi(`/api/tickets/${tao.body.data.id}/status`, { method: 'PATCH', token: nv02, body: { status: 'DA_PHAN_CONG' } });
+  assert.equal(r.status, 403);
+  assert.equal(r.body.error, 'KHONG_DU_QUYEN');
+  assert.equal(docPhieu(tao.body.data.id).status, 'MOI');
 });
