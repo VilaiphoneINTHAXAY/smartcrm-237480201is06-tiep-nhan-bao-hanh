@@ -68,6 +68,7 @@ The default values work as they are; you do not need to edit anything.
 | `FRONTEND_ORIGIN` | `http://localhost:5173` | API | Origins allowed by CORS, comma separated. `*` is rejected at start-up. In Docker it is set automatically to `http://localhost:${WEB_PORT}`. |
 | `DEMO_PASSWORD` | `Demo@123` | migrate | Password given to the three sample accounts when the database is created. Sample data only. |
 | `APP_PORT` | `3000` | docker compose | Port of the API **on your machine**. |
+| `STATIC_DIR` | *(unset)* | API, `Dockerfile.deploy` only | If set, the API also serves the built UI from this folder (trial deployment, section 9). |
 | `WEB_PORT` | `5173` | docker compose | Port of the UI **on your machine**. |
 
 If a value is invalid (for example `FRONTEND_ORIGIN=*` or `PORT=abc`), the API stops immediately and
@@ -155,6 +156,38 @@ certificate and redirects HTTP to HTTPS; the app then reads the `X-Forwarded-Pro
 that the original request was HTTPS (in Express: `app.set('trust proxy', 1)`). The app does not use
 cookies – the login token is sent in the `Authorization: Bearer …` header – so no `Secure` cookie flag
 is needed. `FRONTEND_ORIGIN` must then list the real `https://` address of the UI.
+
+## 9. Trial deployment on a free cloud host (Render)
+
+Live demo: **https://smartcrm-l2-237480201is06.onrender.com** (health: https://smartcrm-l2-237480201is06.onrender.com/health). Free tier – see the limits at the end of this section.
+
+**What is deployed.** One Docker web service built from `Dockerfile.deploy`: stage 1 builds the React UI with
+`VITE_API_BASE_URL=""` (the browser calls `/api/...` on the same address), stage 2 is the same API image as
+`Dockerfile` plus the built UI in `/app/public`, served by Express because `STATIC_DIR=/app/public` is set. One service
+and one address means no CORS between two domains. Local `docker compose` is unchanged (it does not set `STATIC_DIR`).
+
+**Steps (about 10 minutes, no credit card).**
+1. The repository must be **public** and `Dockerfile.deploy` must be on branch `main`.
+2. Sign in at https://render.com (with GitHub) → **+ New** → **Web Service** → tab **Public Git Repository** → paste
+   `https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh` → **Connect**.
+3. Settings: Name `smartcrm-l2-237480201is06` · Language **Docker** · Branch `main` · Region **Singapore** ·
+   Instance type **Free ($0/month)**. Under **Advanced**: Health Check Path `/health`, Docker Build Context `.`,
+   Dockerfile Path `Dockerfile.deploy`. No environment variable is required (defaults come from the image;
+   Render sets `PORT` itself and the app reads it).
+4. **Deploy web service** → wait until the status is **Live** (first build ≈ 1–5 min; log shows the migration loading
+   the sample data and `API đang chạy tại …`).
+5. Verify: open `https://smartcrm-l2-237480201is06.onrender.com/health` → `{"status":"ok","db":"up"}`; open `https://smartcrm-l2-237480201is06.onrender.com`, log in `nv01` / `Demo@123`, create a ticket
+   for phone `0987654321`.
+6. Every push to `main` redeploys automatically (Render *Auto-Deploy*).
+
+**Limits of the free tier (accepted for a trial).**
+- The service **sleeps after ~15 minutes without traffic**; the first request then waits about 30–60 s.
+- **No persistent disk**: SQLite lives in the container, so every restart / redeploy recreates the database from the
+  sample data (tickets created on the demo disappear). A real deployment would attach a persistent disk or move to a
+  managed database.
+- HTTPS is provided by Render's proxy (see section 7); the app itself still runs plain HTTP inside the container.
+- The sample accounts and password `Demo@123` are public on purpose (demo data only). Change `DEMO_PASSWORD` in the
+  Render *Environment* tab for anything beyond a classroom demo.
 
 ## 8. Known limits
 

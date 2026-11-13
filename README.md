@@ -17,6 +17,7 @@ docker compose up -d --build
 ```
 
 Kiểm tra: `docker compose ps` (hai dịch vụ `app`, `web` đều **healthy**) · `curl http://localhost:3000/health` → `{"status":"ok","db":"up"}` · `docker compose exec app npm test` → `fail 0` · giao diện http://localhost:5173, đăng nhập `nv01` / `Demo@123`.
+**Bản deploy thử (Render, free tier):** https://smartcrm-l2-237480201is06.onrender.com – ngủ sau ~15 phút không dùng, lần đầu chờ 30–60 giây; dữ liệu reset về dữ liệu mẫu mỗi lần khởi động lại.
 Hướng dẫn đầy đủ (tiếng Anh): [`docs/deployment-guide.md`](docs/deployment-guide.md) · API: [`docs/api-docs/`](docs/api-docs/README.md) · Checklist bảo mật: [`docs/checklist-bao-mat.md`](docs/checklist-bao-mat.md) · Test Report: [`docs/test-report.md`](docs/test-report.md) · Bug Log: [`docs/bug-log.md`](docs/bug-log.md).
 
 ## 2b. Chạy không dùng Docker (môi trường phát triển)
@@ -93,6 +94,7 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 - [x] Bug Log 7 lỗi; ba lỗi của BT3: BUG-005 (Critical), BUG-006 (Major), BUG-007 (Minor) – mỗi lỗi có test FAIL trước, commit sửa riêng
 - [x] Kiểm soát truy cập theo chủ sở hữu (A01) và băm mật khẩu salt riêng (A04); checklist bảo mật 7 mục có ảnh minh chứng
 - [x] Đo NFR-01, NFR-02, NFR-04 (rút gọn) trên hệ thống Docker – đạt cả ba (`npm run do-nfr`)
+- [x] Deploy thử lên Render (free tier) bằng `Dockerfile.deploy`: https://smartcrm-l2-237480201is06.onrender.com
 - [x] Deployment Guide và API docs (19 endpoint, ví dụ chạy thật) bằng tiếng Anh; CI GitHub Actions (Node 22/24 + build giao diện)
 - Ghi chú: SQLite thay PostgreSQL (TD-04); không dùng JWT mà dùng token phiên phía máy chủ (TD-12)
 
