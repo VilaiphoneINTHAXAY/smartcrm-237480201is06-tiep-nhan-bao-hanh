@@ -1,0 +1,11 @@
+# keep-alive.yml – Gọi /health của bản deploy thử mỗi 10 phút để free tier không ngủ khi giảng viên chấm.
+name: keep-alive
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS --max-time 90 https://smartcrm-l2-237480201is06.onrender.com/health || true
