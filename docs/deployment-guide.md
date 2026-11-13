@@ -4,7 +4,8 @@ Student: INTHAXAY Vilaiphone – 237480201IS06 · Track SE · Release: tag `v1.0
 
 This guide lets a person who has never seen the project start the whole system on a clean machine
 with **two commands**, without asking the author anything. Everything below was run on the author's
-machine (Windows 11 + Docker Desktop); screenshots are in `docs/screenshots/`.
+machine (Windows 11 + Docker Desktop 4.99.0); screenshots are in `docs/screenshots/`
+(`docker-compose-ps.png`, `docker-health.png`, `docker-npm-test-1.png`, `docker-npm-test-2.png`, `docker-web-login.png`, `docker-web-tao-phieu.png`).
 
 What starts:
 
@@ -23,12 +24,14 @@ time the `app` container starts.
 
 | Software | Version tested | Check with |
 |---|---|---|
-| Docker Desktop (Windows / macOS) or Docker Engine (Linux) | Docker 27+ with Compose v2 | `docker --version` and `docker compose version` |
+| Docker Desktop (Windows / macOS) or Docker Engine (Linux) | Docker Desktop 4.99.0 on Windows 11 (WSL 2 backend), Compose v2 | `docker --version` and `docker compose version` |
 | Git | any recent version | `git --version` |
 | Free ports | `3000` (API) and `5173` (UI) | see Troubleshooting if they are busy |
 | Disk / RAM | about 1 GB free disk for images, 4 GB RAM | – |
 
 Node.js does **not** need to be installed on the host – it runs inside the containers.
+On Windows, if Docker Desktop is not installed yet, the quickest way is (PowerShell as Administrator):
+`wsl --install --no-distribution`, then `winget install -e --id Docker.DockerDesktop`, then restart the computer.
 On Windows, Docker Desktop must show **"Engine running"** before you run the commands.
 
 ## 2. Setup steps
