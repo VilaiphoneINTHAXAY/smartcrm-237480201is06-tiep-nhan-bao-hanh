@@ -36,7 +36,7 @@ HTTP/1.1 200
     "id": 3,
     "full_name": "Võ Em",
     "phone": "098****321",
-    "created_at": "2026-11-13 09:04:04",
+    "created_at": "2026-11-13 09:22:55",
     "devices": [
       {
         "id": 3,
@@ -93,7 +93,7 @@ HTTP/1.1 200
       "id": 1,
       "full_name": "Lê Cường",
       "phone": "090****567",
-      "created_at": "2026-11-13 09:04:04"
+      "created_at": "2026-11-13 09:22:55"
     },
     "… 2 more item(s) omitted in this document"
   ]
@@ -142,7 +142,7 @@ HTTP/1.1 200
     "id": 1,
     "full_name": "Lê Cường",
     "phone": "090****567",
-    "created_at": "2026-11-13 09:04:04"
+    "created_at": "2026-11-13 09:22:55"
   }
 }
 ```
@@ -197,7 +197,7 @@ HTTP/1.1 201
     "id": 4,
     "full_name": "Trần Thị Bích",
     "phone": "093****222",
-    "created_at": "2026-11-13 09:04:04"
+    "created_at": "2026-11-13 09:22:56"
   }
 }
 ```
@@ -253,7 +253,7 @@ HTTP/1.1 200
     "id": 4,
     "full_name": "Trần Thị Bích Ngọc",
     "phone": "0933111222",
-    "created_at": "2026-11-13 09:04:04"
+    "created_at": "2026-11-13 09:22:56"
   }
 }
 ```

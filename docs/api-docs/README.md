@@ -75,7 +75,8 @@ Returned by every ticket endpoint.
 |---|---|---|
 | `id`, `code` | integer, string | Internal id and ticket code `BH-0001` |
 | `status` | string | `MOI`, `DA_PHAN_CONG`, `DANG_XU_LY`, `CHO_LINH_KIEN`, `HOAN_TAT`, `DA_DONG`, `DA_HUY` |
-| `allowedNextStatuses` | string[] | Statuses the ticket may move to next (empty when closed) |
+| `allowedNextStatuses` | string[] | Statuses **the caller** may move the ticket to next – empty when the ticket is closed or the caller is neither its creator nor a manager (BUG-007) |
+| `canEdit` | boolean | The caller may edit / move / cancel this ticket (creator or `QUAN_LY`) |
 | `priority` | string | `CAO`, `TRUNG_BINH`, `THAP` – from the issue category |
 | `categoryName` | string | Phần cứng, Phần mềm, Kết nối, Phụ kiện/Ngoại hình, Khác |
 | `warrantyStatus` | string | `CON_BAO_HANH`, `HET_BAO_HANH`, `CHUA_XAC_MINH` |

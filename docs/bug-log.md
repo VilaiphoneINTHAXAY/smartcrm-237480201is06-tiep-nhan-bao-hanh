@@ -17,6 +17,13 @@
 | BUG-004 | Minor | Bấm "Thử lại" khi vẫn lỗi trông như không có tác dụng | Trạng thái lỗi M1–M3 (wireframe) |
 | BUG-005 | **Critical** | Nhân viên sửa / đổi trạng thái / huỷ được phiếu do nhân viên KHÁC tạo (A01 OWASP) | NFR-06, đề BT3 mục S2 |
 | BUG-006 | Major | Mọi tài khoản dùng chung một salt cố định khi băm mật khẩu – hai mật khẩu giống nhau cho cùng một chuỗi băm (A04 OWASP) | NFR-06, đề BT3 mục S3, checklist bảo mật mục 4 |
+| BUG-007 | Minor | Màn hình M3 vẫn hiện nút đổi trạng thái / huỷ phiếu cho nhân viên không phải người tạo phiếu (API trả `allowedNextStatuses` không xét quyền) | QT-06, đề BT3 mục S2, OWASP A01 |
+
+
+> **Ghi chú về quy tắc "mỗi lỗi một commit" (đề BT3, mục C4).** BUG-001 → BUG-003 là lỗi của BT2, được gỡ **trước** khi
+> có quy tắc này: BUG-001 nằm chung commit giao diện đầu tiên, BUG-002 và BUG-003 chung commit `ec824fb` – em giữ
+> nguyên lịch sử, không viết lại. Các lỗi tính cho BT3 – **BUG-005 (Critical), BUG-006 (Major), BUG-007 (Minor)** –
+> mỗi lỗi có commit test FAIL riêng và commit sửa riêng (BUG-004 cũng một commit riêng `b134273`).
 
 ---
 
@@ -91,3 +98,15 @@
 | 5. Nguyên nhân | `seeds/002_demo_password.sql` (viết ở BT2) đặt mật khẩu demo bằng **một chuỗi băm tính sẵn** và gán cho mọi dòng `password_hash = 'chua-dat'`. Vì seed là SQL thuần nên không sinh được salt ngẫu nhiên cho từng dòng – mọi tài khoản nhận cùng salt `mekong-demo-salt`. Hàm kiểm mật khẩu trong `auth.service.js` đúng, lỗi nằm ở cách **tạo** chuỗi băm |
 | 6. Cách sửa | Tách băm / so mật khẩu ra `src/backend/security/password.js`: `hashMatKhau()` sinh salt **16 byte ngẫu nhiên riêng cho từng tài khoản** (`crypto.randomBytes`) rồi băm scrypt; `auth.service.js` dùng lại `dungMatKhau()` từ đây. Xoá `seeds/002_demo_password.sql`; `migrate.js` thêm bước `datMatKhauDemo()` băm mật khẩu demo (đọc `DEMO_PASSWORD` trong `.env`, mặc định `Demo@123`) cho dòng còn `chua-dat` **hoặc còn chuỗi băm salt cũ** – CSDL cũ được sửa tự động, chạy lại lần hai không băm lại (giữ C5). Thêm 2 test hồi quy: migrate lần hai giữ nguyên chuỗi băm và vẫn đăng nhập được; CSDL cũ có salt chung được băm lại |
 | 7. Commit và xác nhận | Commit: [b46074c](https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/commit/b46074c5a61e2e8d39755091eab93f03b61555ce) (`fix(auth): … (BUG-006)`) · Chạy lại `node --test tests/a04.mat-khau.test.js` → 3/3 **PASS** (ảnh `docs/screenshots/A04-PASS.png`); `npm run migrate` trên CSDL cũ của máy em: lần 1 "đặt cho 3 tài khoản", lần 2 "đặt cho 0 tài khoản", số dòng mọi bảng giữ nguyên (6 phiếu, 6 dòng lịch sử còn đủ); đăng nhập `nv01` / `Demo@123` vẫn được; `npm test`: **53/53 PASS** |
+
+## BUG-007 · Minor — M3 vẫn hiện nút đổi trạng thái / huỷ phiếu cho nhân viên không có quyền
+
+| Dòng | Nội dung |
+|---|---|
+| 1. Mã và mức độ | BUG-007 · **Minor** — sau khi sửa BUG-005, server đã chặn đúng (403) nên dữ liệu **không** bị đổi; lỗi chỉ ở chỗ giao diện gợi ý một thao tác người dùng không được làm, bấm vào thì nhận thông báo lỗi. Phân loại theo cây phân loại buổi 13: dữ liệu đúng, chức năng chính vẫn chạy, có cách đi tiếp → Minor |
+| 2. Phát hiện bởi | Rà lại màn hình M3 bằng tài khoản `nv02` khi viết API docs (trường `allowedNextStatuses`); viết thành **TC-11c** trong `tests/a01.chu-so-huu.test.js` – lần chạy đầu FAIL: `actual: ['DA_PHAN_CONG', 'DA_HUY']`, `expected: []` (ảnh `docs/screenshots/TC-11c-FAIL.png`, commit test [3d1b5cd](https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/commit/3d1b5cdb44d7830e5083f11f222a31a544f8aada)) |
+| 3. Triệu chứng | Đăng nhập `nv02`, mở phiếu do `nv01` tạo ở M3 → vẫn thấy các nút "Chuyển trạng thái → Đã phân công" và ô "Lý do khách huỷ" + nút "Huỷ phiếu"; bấm vào → thông báo đỏ "Chỉ người tạo phiếu hoặc Quản lý TTBH được sửa phiếu này" (403) |
+| 4. Cách tái lập | 1) `docker compose up -d --build`; 2) đăng nhập `nv01`, tạo phiếu bất kỳ; 3) đăng xuất, đăng nhập `nv02` / `Demo@123`, mở phiếu đó ở *Danh sách phiếu* → thấy nút (5/5 lần). Ở mức API: `GET /api/tickets/<id>` bằng token `nv02` trả `allowedNextStatuses: ["DA_PHAN_CONG","DA_HUY"]`. Tự động: `npm run tc -- "TC-11c"` |
+| 5. Nguyên nhân | `toTicketView()` trong `src/backend/services/ticket.contract.js` tính `allowedNextStatuses` **chỉ theo trạng thái phiếu** (vòng đời QT-06), không xét người xem; còn quy tắc người tạo / Quản lý (BUG-005) chỉ nằm trong `TicketService` lúc ghi. Hai nơi không dùng cùng một quy tắc nên API "gợi ý" bước chuyển cho người không được chuyển; M3 vẽ nút theo đúng mảng đó |
+| 6. Cách sửa | `toTicketView()` tính thêm `canEdit = người xem là QUAN_LY hoặc created_by === người xem` (cùng quy tắc với `#chiNguoiTaoHoacQuanLy`); khi `canEdit` sai thì `allowedNextStatuses = []`. Hợp đồng dữ liệu thêm trường `canEdit` (cập nhật test hợp đồng trong `tests/ticket.service.test.js`). M3 (`TicketDetailPage.jsx`) hiện dòng "Chỉ người tạo phiếu (…) hoặc Quản lý TTBH được cập nhật phiếu này" thay cho các nút. Server vẫn giữ kiểm quyền 403 – giao diện ẩn nút chỉ để dễ dùng, không thay cho kiểm quyền |
+| 7. Commit và xác nhận | Commit: [d827e3c](https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh/commit/d827e3c9044937b7c474c3374b961162111b924e) (`fix(ticket): … (BUG-007)`) · Chạy lại TC-11c → `allowedNextStatuses: []`, `canEdit: false` với `nv02`; `nv01` và `ql01` vẫn thấy `["DA_PHAN_CONG","DA_HUY"]` → **PASS** (ảnh `docs/screenshots/TC-11c-PASS.png`); TC-11, TC-11b vẫn PASS; `npm test`: **62/62 PASS** |

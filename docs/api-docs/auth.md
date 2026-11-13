@@ -37,7 +37,7 @@ HTTP/1.1 200
 
 {
   "data": {
-    "token": "39502c18…32c2cb86",
+    "token": "26b835ba…28d61578",
     "user": {
       "id": 1,
       "username": "nv01",

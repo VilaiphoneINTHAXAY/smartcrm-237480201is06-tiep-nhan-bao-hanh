@@ -55,14 +55,15 @@ HTTP/1.1 201
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "CAO",
     "categoryName": "Phần cứng",
     "warrantyStatus": "CHUA_XAC_MINH",
     "isUnverified": true,
     "issueDescription": "Máy không lên nguồn",
-    "receivedAt": "2026-11-13T09:04:04.605Z",
+    "receivedAt": "2026-11-13T09:22:56.205Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-14T09:04:04.605Z",
+    "slaDueAt": "2026-11-14T09:22:56.205Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -113,14 +114,15 @@ HTTP/1.1 201
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "TRUNG_BINH",
     "categoryName": "Phần mềm",
     "warrantyStatus": "CON_BAO_HANH",
     "isUnverified": false,
     "issueDescription": "Máy bị treo logo, đơ cảm ứng",
-    "receivedAt": "2026-11-13T09:04:04.614Z",
+    "receivedAt": "2026-11-13T09:22:56.215Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-17T09:04:04.614Z",
+    "slaDueAt": "2026-11-17T09:22:56.215Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -194,14 +196,15 @@ HTTP/1.1 200
         "DA_PHAN_CONG",
         "DA_HUY"
       ],
+      "canEdit": true,
       "priority": "CAO",
       "categoryName": "Phần cứng",
       "warrantyStatus": "CHUA_XAC_MINH",
       "isUnverified": true,
       "issueDescription": "Máy không lên nguồn",
-      "receivedAt": "2026-11-13T09:04:04.605Z",
+      "receivedAt": "2026-11-13T09:22:56.205Z",
       "createdByName": "Nguyễn An",
-      "slaDueAt": "2026-11-14T09:04:04.605Z",
+      "slaDueAt": "2026-11-14T09:22:56.205Z",
       "isOverdue": false,
       "needsAttention": false,
       "customer": {
@@ -243,14 +246,15 @@ HTTP/1.1 200
         "DA_PHAN_CONG",
         "DA_HUY"
       ],
+      "canEdit": true,
       "priority": "CAO",
       "categoryName": "Phần cứng",
       "warrantyStatus": "CHUA_XAC_MINH",
       "isUnverified": true,
       "issueDescription": "Máy không lên nguồn",
-      "receivedAt": "2026-11-13T09:04:04.605Z",
+      "receivedAt": "2026-11-13T09:22:56.205Z",
       "createdByName": "Nguyễn An",
-      "slaDueAt": "2026-11-14T09:04:04.605Z",
+      "slaDueAt": "2026-11-14T09:22:56.205Z",
       "isOverdue": false,
       "needsAttention": false,
       "customer": {
@@ -318,14 +322,15 @@ HTTP/1.1 200
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "CAO",
     "categoryName": "Phần cứng",
     "warrantyStatus": "CHUA_XAC_MINH",
     "isUnverified": true,
     "issueDescription": "Máy không lên nguồn",
-    "receivedAt": "2026-11-13T09:04:04.605Z",
+    "receivedAt": "2026-11-13T09:22:56.205Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-14T09:04:04.605Z",
+    "slaDueAt": "2026-11-14T09:22:56.205Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -391,7 +396,7 @@ HTTP/1.1 200
       "from_status": null,
       "to_status": "MOI",
       "note": null,
-      "changed_at": "2026-11-13T09:04:04.605Z",
+      "changed_at": "2026-11-13T09:22:56.205Z",
       "changed_by_name": "Nguyễn An"
     },
     {
@@ -400,7 +405,7 @@ HTTP/1.1 200
       "from_status": "MOI",
       "to_status": "MOI",
       "note": "Duyệt: CÒN BẢO HÀNH",
-      "changed_at": "2026-11-13T09:04:04.632Z",
+      "changed_at": "2026-11-13T09:22:56.238Z",
       "changed_by_name": "Trần Bình"
     },
     {
@@ -409,7 +414,7 @@ HTTP/1.1 200
       "from_status": "MOI",
       "to_status": "DA_PHAN_CONG",
       "note": "Giao KTV Hùng",
-      "changed_at": "2026-11-13T09:04:04.636Z",
+      "changed_at": "2026-11-13T09:22:56.243Z",
       "changed_by_name": "Nguyễn An"
     }
   ]
@@ -469,14 +474,15 @@ HTTP/1.1 200
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "TRUNG_BINH",
     "categoryName": "Phần mềm",
     "warrantyStatus": "CON_BAO_HANH",
     "isUnverified": false,
     "issueDescription": "Mất sóng wifi sau khi cập nhật",
-    "receivedAt": "2026-11-13T09:04:04.614Z",
+    "receivedAt": "2026-11-13T09:22:56.215Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-17T09:04:04.614Z",
+    "slaDueAt": "2026-11-17T09:22:56.215Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -506,7 +512,7 @@ HTTP/1.1 200
 | 409 | `TRANG_THAI_KHONG_HOP_LE` | Ticket already `HOAN_TAT`, `DA_DONG` or `DA_HUY` | `{"error": "TRANG_THAI_KHONG_HOP_LE", "message": "Phiếu đã kết thúc (hoàn tất, đóng hoặc huỷ), không sửa được", "field": "status", "fields": {"status": "Phiếu đã kết thúc (hoàn tất, đóng hoặc huỷ), không sửa được"}}` |
 | 401 | `CHUA_DANG_NHAP` | No `Authorization` header, unknown/expired token (30 min idle) or token logged out | `{"error": "CHUA_DANG_NHAP", "message": "Vui lòng đăng nhập"}` |
 
-**7. Notes / limits:** The SLA due date is **not** recomputed (BR-05), even if the priority changes (in the example `slaDueAt` stays `2026-11-17T09:04:04.614Z`; "cập nhật" matches *Phần mềm* before "wifi" matches *Kết nối*, BR-04 order).
+**7. Notes / limits:** The SLA due date is **not** recomputed (BR-05), even if the priority changes (in the example `slaDueAt` stays `2026-11-17T09:22:56.215Z`; "cập nhật" matches *Phần mềm* before "wifi" matches *Kết nối*, BR-04 order).
 
 ---
 
@@ -554,14 +560,15 @@ HTTP/1.1 200
       "DANG_XU_LY",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "CAO",
     "categoryName": "Phần cứng",
     "warrantyStatus": "CON_BAO_HANH",
     "isUnverified": false,
     "issueDescription": "Máy không lên nguồn",
-    "receivedAt": "2026-11-13T09:04:04.605Z",
+    "receivedAt": "2026-11-13T09:22:56.205Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-14T09:04:04.605Z",
+    "slaDueAt": "2026-11-14T09:22:56.205Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -631,14 +638,15 @@ HTTP/1.1 200
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "CAO",
     "categoryName": "Phần cứng",
     "warrantyStatus": "CON_BAO_HANH",
     "isUnverified": false,
     "issueDescription": "Máy không lên nguồn",
-    "receivedAt": "2026-11-13T09:04:04.605Z",
+    "receivedAt": "2026-11-13T09:22:56.205Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-14T09:04:04.605Z",
+    "slaDueAt": "2026-11-14T09:22:56.205Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -713,14 +721,15 @@ HTTP/1.1 200
       "DA_PHAN_CONG",
       "DA_HUY"
     ],
+    "canEdit": true,
     "priority": "THAP",
     "categoryName": "Phụ kiện/Ngoại hình",
     "warrantyStatus": "CHUA_XAC_MINH",
     "isUnverified": true,
     "issueDescription": "Trầy xước nút bấm",
-    "receivedAt": "2026-11-13T09:04:04.641Z",
+    "receivedAt": "2026-11-13T09:22:56.250Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-19T09:04:04.641Z",
+    "slaDueAt": "2026-11-19T09:22:56.250Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
@@ -792,14 +801,15 @@ HTTP/1.1 200
     "code": "BH-0003",
     "status": "DA_HUY",
     "allowedNextStatuses": [],
+    "canEdit": true,
     "priority": "THAP",
     "categoryName": "Phụ kiện/Ngoại hình",
     "warrantyStatus": "CHUA_XAC_MINH",
     "isUnverified": true,
     "issueDescription": "Trầy xước nút bấm",
-    "receivedAt": "2026-11-13T09:04:04.641Z",
+    "receivedAt": "2026-11-13T09:22:56.250Z",
     "createdByName": "Nguyễn An",
-    "slaDueAt": "2026-11-19T09:04:04.641Z",
+    "slaDueAt": "2026-11-19T09:22:56.250Z",
     "isOverdue": false,
     "needsAttention": false,
     "customer": {
