@@ -96,7 +96,7 @@ test('Đổi trạng thái chỉ đi tiến từng bước: MOI -> HOAN_TAT bị
 test('Hợp đồng toTicketView: đủ trường, ngày dạng ISO, purchaseDate null khi chưa có ngày mua', () => {
   const { service, khachId } = setup();
   const p = service.create({ issueDescription: 'Ốp lưng bị nứt', device: mayMoi(khachId, { purchaseDate: null }) }, NV);
-  assert.deepEqual(Object.keys(p).sort(), ['allowedNextStatuses', 'categoryName', 'code', 'createdByName', 'customer', 'device',
+  assert.deepEqual(Object.keys(p).sort(), ['allowedNextStatuses', 'canEdit', 'categoryName', 'code', 'createdByName', 'customer', 'device',
     'id', 'isOverdue', 'isUnverified', 'issueDescription', 'needsAttention', 'priority', 'receivedAt', 'slaDueAt', 'status',
     'warrantyStatus']);
   assert.deepEqual(p.allowedNextStatuses, ['DA_PHAN_CONG', 'DA_HUY']);   // QT-06

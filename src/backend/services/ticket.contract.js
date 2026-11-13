@@ -12,7 +12,9 @@
 //  issueDescription : chuỗi, luôn có
 //  receivedAt       : chuỗi ISO 8601 (UTC, có chữ Z), luôn có
 //  slaDueAt         : chuỗi ISO 8601 (UTC, có chữ Z), luôn có
-//  allowedNextStatuses : mảng trạng thái được phép chuyển tiếp (QT-06), [] khi đã kết thúc
+//  allowedNextStatuses : mảng trạng thái NGƯỜI XEM được phép chuyển tiếp (QT-06); [] khi đã kết thúc
+//                     hoặc khi người xem không phải người tạo phiếu / Quản lý (A01, BUG-007)
+//  canEdit          : boolean – người xem được sửa / đổi trạng thái / huỷ phiếu này (người tạo hoặc Quản lý)
 //  isOverdue        : boolean – phiếu CHƯA hoàn tất và đã quá hạn SLA (GWT-16, tô đỏ)
 //  needsAttention   : boolean – phiếu chưa hoàn tất, còn ≤ 8 giờ hoặc đã quá hạn (GWT-16)
 //  createdByName    : họ tên người tiếp nhận (M3), luôn có
@@ -45,11 +47,15 @@ const CHUYEN_TIEP = {
 function toTicketView(row, now = new Date(), nguoiXem) {
   const conMo = !DA_KET_THUC.includes(row.status);
   const conLaiMs = new Date(row.sla_due_at).getTime() - now.getTime();
+  // BUG-007: cùng quy tắc với TicketService.#chiNguoiTaoHoacQuanLy – không gợi ý nút cho người không có quyền.
+  // Không có nguoiXem = lời gọi nội bộ của service (không hiển thị ra ngoài) -> giữ đủ bước.
+  const canEdit = !nguoiXem || nguoiXem.role === 'QUAN_LY' || row.created_by === nguoiXem.id;
   return {
     id: row.id,
     code: row.code,
     status: row.status,
-    allowedNextStatuses: CHUYEN_TIEP[row.status] || [],
+    allowedNextStatuses: canEdit ? (CHUYEN_TIEP[row.status] || []) : [],
+    canEdit,
     priority: row.priority,
     categoryName: row.category_name,
     warrantyStatus: row.warranty_status,

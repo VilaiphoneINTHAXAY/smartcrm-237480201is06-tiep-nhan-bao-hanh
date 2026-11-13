@@ -86,6 +86,10 @@ export default function TicketDetailPage({ id, user }) {
                     </div>
                   </div>
                 )}
+                {/* BUG-007: người xem không phải người tạo phiếu / Quản lý -> server trả canEdit=false, không có nút nào */}
+                {t.canEdit === false && (
+                  <p className="hint">Chỉ người tạo phiếu ({t.createdByName}) hoặc Quản lý TTBH được cập nhật phiếu này.</p>
+                )}
                 {/* QT-06: chỉ hiện các bước được phép theo vòng đời Hình 6.2 (server trả allowedNextStatuses) */}
                 {t.allowedNextStatuses.some((s) => s !== 'DA_HUY') && (
                   <div className="actions">
