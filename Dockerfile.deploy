@@ -1,0 +1,28 @@
+# Dockerfile.deploy – Bản deploy thử lên dịch vụ miễn phí (Render free tier), xem docs/deployment-guide.md mục 9.
+# MỘT dịch vụ: API Express phục vụ luôn giao diện React đã build (cùng địa chỉ -> không cần CORS giữa hai miền).
+# Chạy cục bộ để thử:  docker build -f Dockerfile.deploy -t smartcrm-deploy .  &&  docker run -p 3000:3000 smartcrm-deploy
+FROM node:24-alpine AS web
+WORKDIR /web
+COPY src/frontend/package.json src/frontend/package-lock.json ./
+RUN npm ci
+COPY src/frontend/index.html src/frontend/vite.config.js ./
+COPY src/frontend/src ./src
+# Chuỗi rỗng: trình duyệt gọi /api/... ngay trên địa chỉ của trang
+ENV VITE_API_BASE_URL=""
+RUN npm run build
+
+FROM node:24-alpine
+WORKDIR /app
+ENV NODE_ENV=production DB_PATH=/app/data/smartcrm.db STATIC_DIR=/app/public PORT=3000
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY src/backend ./src/backend
+COPY migrations ./migrations
+COPY seeds ./seeds
+COPY tests ./tests
+COPY --from=web /web/dist ./public
+RUN mkdir -p /app/data && chown -R node:node /app/data
+USER node
+EXPOSE 3000
+# Free tier không có ổ đĩa lâu dài: mỗi lần khởi động lại, CSDL được dựng lại từ dữ liệu mẫu (migrate idempotent).
+CMD ["sh", "-c", "node src/backend/migrate.js && node src/backend/server.js"]

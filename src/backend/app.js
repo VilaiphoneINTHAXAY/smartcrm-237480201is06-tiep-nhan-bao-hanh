@@ -67,6 +67,10 @@ function buildApp(db, { sessionTimeoutMinutes = Number(process.env.SESSION_TIMEO
   app.use('/api/customers', dangNhap, customerRoutes(customerService));
   app.use('/api/tickets', dangNhap, ticketRoutes(ticketService));
 
+  // Bản deploy (Dockerfile.deploy): API phục vụ luôn giao diện đã build – một dịch vụ, cùng địa chỉ, không cần CORS.
+  // Ở docker compose / phát triển không đặt STATIC_DIR nên đoạn này không chạy.
+  if (process.env.STATIC_DIR) app.use(express.static(process.env.STATIC_DIR, { index: 'index.html', maxAge: '1h' }));
+
   app.use((_req, res) => res.status(404).json({ error: 'KHONG_TIM_THAY', message: 'Không có đường dẫn này' }));
 
   // Xử lý lỗi cuối cùng: một định dạng lỗi cho cả API { error, message, fields } (buổi 9);

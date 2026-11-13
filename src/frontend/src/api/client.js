@@ -1,6 +1,7 @@
 // client.js – LỚP GỌI API: nơi DUY NHẤT trong giao diện biết về HTTP và fetch (buổi 9, A2).
 // Đổi base URL, thêm token, xử lý 401 -> chỉ sửa ở đây.
-const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'; // không ghi cứng trong component
+// '' (chuỗi rỗng) = gọi cùng địa chỉ với trang – dùng khi API và giao diện chung một dịch vụ (bản deploy, Dockerfile.deploy).
+const BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000'; // không ghi cứng trong component
 const KHOA_TOKEN = 'smartcrm_token';
 // Chỉ để CHỤP ẢNH trạng thái "đang tải": đặt VITE_DEMO_DELAY_MS trong .env. Mặc định 0 = không chờ.
 const DEMO_DELAY_MS = Number(import.meta.env.VITE_DEMO_DELAY_MS) || 0;
