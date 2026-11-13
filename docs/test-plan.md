@@ -29,7 +29,7 @@
 
 ## 2. Loại test và số lượng mỗi tầng
 
-Bộ kiểm thử tự động: **53 test** trong 12 tệp `tests/*.test.js` (`node:test`, không cần cài thêm gói). Test Report trình bày chi tiết **12 test case** đại diện, đặt mã TC-01 … TC-12 ngay trong tên test:
+Bộ kiểm thử tự động: **53 test** trong 12 tệp `tests/*.test.js` lúc lập kế hoạch (buổi 13); khi nộp v1.0 là **62 test** trong 13 tệp (thêm `tests/bao-mat.test.js`, TC-11c, test `/health`) (`node:test`, không cần cài thêm gói). Test Report trình bày chi tiết **12 test case** đại diện, đặt mã TC-01 … TC-12 ngay trong tên test:
 
 | Tầng | Số TC | Mã |
 |---|---|---|

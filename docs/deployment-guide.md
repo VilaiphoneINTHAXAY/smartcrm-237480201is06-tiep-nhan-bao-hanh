@@ -36,21 +36,19 @@ On Windows, Docker Desktop must show **"Engine running"** before you run the com
 
 ## 2. Setup steps
 
-```bash
-git clone --branch v1.0 https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh.git
-cd smartcrm-237480201is06-tiep-nhan-bao-hanh
-```
+Run these **one by one** in a terminal (PowerShell, bash or zsh). Every step is a single command you can copy.
 
-Then the **two commands** that start the system:
-
-```bash
-cp .env.example .env
-docker compose up -d --build
-```
+| # | Command | What it does |
+|---|---|---|
+| 1 | `git clone --branch v1.0 https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh.git` | Downloads exactly the submitted version (tag `v1.0`) |
+| 2 | `cd smartcrm-237480201is06-tiep-nhan-bao-hanh` | Enters the project folder |
+| 3 | `cp .env.example .env` | **Command 1 of 2** – creates the configuration file (defaults work as they are) |
+| 4 | `docker compose up -d --build` | **Command 2 of 2** – builds both images, creates the database, **loads the sample data automatically** and starts `app` + `web` |
 
 - `cp` also works in Windows PowerShell (it is an alias of `Copy-Item`). In the old `cmd.exe` use `copy .env.example .env`.
 - The first build downloads the base images `node:24-alpine` and `nginx:1.27-alpine` and takes about 2–5 minutes. Later starts take a few seconds.
 - `web` waits until `app` reports **healthy**, so the UI never starts against an API that is not ready.
+- There is no separate step for the sample data: the `app` container runs the migration and the seeds before it starts the API.
 
 Stop the system: `docker compose down` (keeps the data) · Reset everything including the database: `docker compose down -v`.
 
@@ -60,16 +58,18 @@ All variables live in `.env` (copied from `.env.example`). **No variable is secr
 contains no passwords, keys or connection strings, and `.env` is in `.gitignore`.
 The default values work as they are; you do not need to edit anything.
 
-| Variable | Default | Used by | Meaning |
-|---|---|---|---|
-| `PORT` | `3000` | API (when run without Docker) | Port the API listens on. In Docker it is fixed to `3000` inside the container. |
-| `DB_PATH` | `data/smartcrm.db` | API (without Docker) | SQLite file. In Docker it is forced to `/app/data/smartcrm.db` (inside the `appdata` volume). |
-| `SESSION_TIMEOUT_MINUTES` | `30` | API | Login session expires after this many idle minutes (NFR-06). Must be an integer 1–1440. |
-| `FRONTEND_ORIGIN` | `http://localhost:5173` | API | Origins allowed by CORS, comma separated. `*` is rejected at start-up. In Docker it is set automatically to `http://localhost:${WEB_PORT}`. |
-| `DEMO_PASSWORD` | `Demo@123` | migrate | Password given to the three sample accounts when the database is created. Sample data only. |
-| `APP_PORT` | `3000` | docker compose | Port of the API **on your machine**. |
-| `STATIC_DIR` | *(unset)* | API, `Dockerfile.deploy` only | If set, the API also serves the built UI from this folder (trial deployment, section 9). |
-| `WEB_PORT` | `5173` | docker compose | Port of the UI **on your machine**. |
+| Variable | Example value (default) | Required? | Used by | Meaning |
+|---|---|---|---|---|
+| `PORT` | `3000` | No | API | Port the API listens on. In Docker it is fixed to `3000` inside the container; on Render the platform sets it. |
+| `DB_PATH` | `data/smartcrm.db` | No | API, migrate | SQLite file. In Docker it is forced to `/app/data/smartcrm.db` (inside the `appdata` volume). |
+| `SESSION_TIMEOUT_MINUTES` | `30` | No | API | Login session expires after this many idle minutes (NFR-06). Must be an integer 1–1440. |
+| `FRONTEND_ORIGIN` | `http://localhost:5173` | No | API | Origins allowed by CORS, comma separated. `*` is rejected at start-up. In Docker it is set automatically to `http://localhost:${WEB_PORT}`. |
+| `DEMO_PASSWORD` | `Demo@123` | No | migrate | Password given to the three sample accounts when the database is created. Sample data only. |
+| `APP_PORT` | `3000` | No | docker compose | Port of the API **on your machine**. |
+| `WEB_PORT` | `5173` | No | docker compose | Port of the UI **on your machine**. |
+| `STATIC_DIR` | *(unset)* | No | API (`Dockerfile.deploy` only) | If set, the API also serves the built UI from this folder (trial deployment, section 9). |
+
+No variable is mandatory: every one has a working default, which is why `cp .env.example .env` is enough.
 
 If a value is invalid (for example `FRONTEND_ORIGIN=*` or `PORT=abc`), the API stops immediately and
 prints which variable is wrong (`src/backend/config.js`); `docker compose ps` will then show `app`
@@ -123,6 +123,14 @@ In the browser, open http://localhost:5173:
 4. You should see ticket `BH-0001`, category *Phần cứng · Cao*, warranty *Chưa xác minh*.
 5. Log out, log in as `ql01` / `Demo@123`, open the ticket and approve the warranty.
 
+Run the loading step a **second time** (it must not fail and must not duplicate data – C8):
+
+```bash
+docker compose restart app
+docker compose exec app node src/backend/migrate.js
+```
+Expected: the counts printed are the same as after the first start (`app_user 3`, `customer 3`, `device 3`, `issue_category 5`).
+
 ### Clean-machine test (what the author ran before tagging v1.0)
 
 ```bash
@@ -172,8 +180,16 @@ and one address means no CORS between two domains. Local `docker compose` is unc
    `https://github.com/VilaiphoneINTHAXAY/smartcrm-237480201is06-tiep-nhan-bao-hanh` → **Connect**.
 3. Settings: Name `smartcrm-l2-237480201is06` · Language **Docker** · Branch `main` · Region **Singapore** ·
    Instance type **Free ($0/month)**. Under **Advanced**: Health Check Path `/health`, Docker Build Context `.`,
-   Dockerfile Path `Dockerfile.deploy`. No environment variable is required (defaults come from the image;
-   Render sets `PORT` itself and the app reads it).
+   Dockerfile Path `Dockerfile.deploy`. **Environment** (tab *Environment* → *Add Environment Variable*):
+
+   | Key | Value | Why |
+   |---|---|---|
+   | `FRONTEND_ORIGIN` | `https://smartcrm-l2-237480201is06.onrender.com` | CORS origin = the public address of the service |
+   | `SESSION_TIMEOUT_MINUTES` | `30` | NFR-06 session timeout |
+   | `DEMO_PASSWORD` | `Demo@123` | Password of the sample accounts (demo data only) |
+
+   `PORT` is set by Render itself and read by the app; `DB_PATH` and `STATIC_DIR` come from `Dockerfile.deploy`.
+   No secret is stored in the repository or in the image – values live only in Render's Environment tab.
 4. **Deploy web service** → wait until the status is **Live** (first build ≈ 1–5 min; log shows the migration loading
    the sample data and `API đang chạy tại …`).
 5. Verify: open `https://smartcrm-l2-237480201is06.onrender.com/health` → `{"status":"ok","db":"up"}`; open `https://smartcrm-l2-237480201is06.onrender.com`, log in `nv01` / `Demo@123`, create a ticket
