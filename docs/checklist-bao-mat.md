@@ -16,9 +16,9 @@ kèm minh chứng là lệnh đã **chạy thật** trên máy em (Windows 11, P
 | 2 | Kiểm dữ liệu vào ở tầng ứng dụng | **ĐÃ LÀM** | `src/backend/validators/` · 3 lệnh grep · TC-10 · `sec-2.png` |
 | 3 | Kiểm soát truy cập theo chủ sở hữu | **ĐÃ LÀM** | `ticket.service.js` · `tests/a01.chu-so-huu.test.js` (TC-11) · `sec-3.png` |
 | 4 | Mật khẩu được băm, không lưu dạng đọc được | **ĐÃ LÀM** | `src/backend/security/password.js` (scrypt, salt ngẫu nhiên) · `tests/a04.mat-khau.test.js` · `sec-4.png` |
-| 5 | Thông báo lỗi không lộ chi tiết bên trong | **ĐÃ LÀM** | bộ xử lý lỗi cuối trong `app.js` · `tests/bao-mat.test.js` · `sec-5.png` |
-| 6 | Log không ghi mật khẩu, token, dữ liệu cá nhân thừa | **ĐÃ LÀM** | `src/backend/security/log.js` · `tests/bao-mat.test.js` · `sec-6.png` |
-| 7 | Thư viện ngoài khoá phiên bản và kiểm cảnh báo lỗ hổng | **ĐÃ LÀM** (còn 1 rủi ro chấp nhận) | `package-lock.json` đã commit · `npm audit` · `sec-7.png` |
+| 5 | Thông báo lỗi không lộ chi tiết bên trong | **ĐÃ LÀM** | bộ xử lý lỗi cuối trong `app.js` · `tests/bao-mat.test.js` (7/7 pass) · `sec-5.png` |
+| 6 | Log không ghi mật khẩu, token, dữ liệu cá nhân thừa | **ĐÃ LÀM** | `src/backend/security/log.js` · `tests/bao-mat.test.js` · log container rỗng `sec-6.png` |
+| 7 | Thư viện ngoài khoá phiên bản và kiểm cảnh báo lỗ hổng | **ĐÃ LÀM** (còn 1 rủi ro chấp nhận) | `package-lock.json` đã commit · `npm audit` · `sec-7a.png` (trước), `sec-7b.png` (sau) |
 
 ---
 
@@ -90,7 +90,7 @@ git grep -nE 'exec\(|execSync|spawn\(|os\.system|shell=True' -- src/
 ```powershell
 docker compose logs app | Select-String -Pattern "Demo@123|Bearer|password"
 ```
-→ in ra rỗng.
+→ in ra rỗng (`sec-6.png`, chạy trên container thật lúc 15:51 ngày 13/11/2026).
 
 ## 7. Thư viện ngoài khoá phiên bản và kiểm lỗ hổng – ĐÃ LÀM (còn 1 rủi ro chấp nhận)
 
