@@ -1,0 +1,14 @@
+# Không chép vào image: thư viện của máy sinh viên, bí mật, dữ liệu cục bộ, tài liệu và lịch sử git
+node_modules
+**/node_modules
+.env
+**/.env
+data
+**/dist
+.git
+.github
+docs
+db
+*.log
+*.pdf
+Claude outputs

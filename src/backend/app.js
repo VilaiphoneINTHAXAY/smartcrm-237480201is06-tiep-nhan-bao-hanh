@@ -9,6 +9,7 @@ const CustomerService = require('./services/customer.service');
 const TicketService = require('./services/ticket.service');
 const AuthService = require('./services/auth.service');
 const { requireAuth } = require('./middleware/auth');
+const { dongLogLoi } = require('./security/log');
 const customerRoutes = require('./routes/customer.routes');
 const ticketRoutes = require('./routes/ticket.routes');
 const authRoutes = require('./routes/auth.routes');
@@ -29,19 +30,32 @@ const HTTP_STATUS = {
 
 function buildApp(db, { sessionTimeoutMinutes = Number(process.env.SESSION_TIMEOUT_MINUTES) || 30 } = {}) {
   const app = express();
+  app.disable('x-powered-by');   // không lộ "Express" trong header phản hồi (checklist bảo mật mục 5)
   app.use(express.json({ limit: '100kb' }));
 
   // Cho phép giao diện chạy ở cổng khác (Vite 5173) gọi API trong môi trường cục bộ.
-  const origin = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
+  // FRONTEND_ORIGIN có thể là một danh sách, ngăn bằng dấu phẩy; KHÔNG dùng '*' (checklist bảo mật, tài liệu buổi 15 A2).
+  const nguonChoPhep = (process.env.FRONTEND_ORIGIN || 'http://localhost:5173')
+    .split(',').map((s) => s.trim()).filter(Boolean);
   app.use((req, res, next) => {
-    res.set('Access-Control-Allow-Origin', origin);
+    const nguon = req.headers.origin;
+    res.set('Access-Control-Allow-Origin', nguon && nguonChoPhep.includes(nguon) ? nguon : nguonChoPhep[0]);
+    res.set('Vary', 'Origin');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     if (req.method === 'OPTIONS') return res.status(204).end();
     next();
   });
 
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  // /health kiểm cả CSDL: người chấm (và healthcheck của docker compose) biết hệ thống đã thật sự sẵn sàng
+  app.get('/health', (_req, res) => {
+    try {
+      db.prepare('SELECT 1').get();
+      res.json({ status: 'ok', db: 'up' });
+    } catch {
+      res.status(503).json({ status: 'error', db: 'down' });
+    }
+  });
 
   const authService = new AuthService(new UserRepository(db), { timeoutMinutes: sessionTimeoutMinutes });
   const dangNhap = requireAuth(authService);
@@ -57,7 +71,7 @@ function buildApp(db, { sessionTimeoutMinutes = Number(process.env.SESSION_TIMEO
 
   // Xử lý lỗi cuối cùng: một định dạng lỗi cho cả API { error, message, fields } (buổi 9);
   // KHÔNG trả lỗi thô của thư viện cho người gọi (C7).
-  app.use((err, _req, res, _next) => {
+  app.use((err, req, res, _next) => {
     if (err instanceof AppError) {
       const body = { error: err.code, message: err.message };
       if (err.field) {
@@ -69,7 +83,7 @@ function buildApp(db, { sessionTimeoutMinutes = Number(process.env.SESSION_TIMEO
     if (err.type === 'entity.parse.failed') {
       return res.status(400).json({ error: 'DU_LIEU_KHONG_HOP_LE', message: 'Body không phải JSON hợp lệ' });
     }
-    console.error(err);
+    console.error(dongLogLoi(err, req));   // log an toàn: không ghi body, header, token (checklist mục 6)
     res.status(500).json({ error: 'LOI_HE_THONG', message: 'Đã xảy ra lỗi, vui lòng thử lại sau' });
   });
 

@@ -1,0 +1,42 @@
+# docker-compose.yml – Smart CRM, luồng L2 (track SE). Thành phần 4 của BT3.
+# Người chấm chạy ĐÚNG hai lệnh:  cp .env.example .env   →   docker compose up -d --build
+# Không có dịch vụ CSDL riêng: SQLite là một tệp nằm trong volume "appdata" của dịch vụ app (TD-12).
+services:
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DB_PATH: /app/data/smartcrm.db          # luôn ghi vào volume, không phụ thuộc giá trị trong .env
+      PORT: 3000                             # cổng BÊN TRONG container cố định; đổi cổng ngoài bằng APP_PORT
+      FRONTEND_ORIGIN: http://localhost:${WEB_PORT:-5173}   # CORS khớp cổng của dịch vụ web
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - appdata:/app/data                    # CSDL + dữ liệu mẫu giữ lại giữa các lần khởi động
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./src/frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:${APP_PORT:-3000}
+    ports:
+      - "${WEB_PORT:-5173}:80"
+    depends_on:
+      app:
+        condition: service_healthy           # giao diện chỉ lên khi API đã SẴN SÀNG
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+volumes:
+  appdata: {}

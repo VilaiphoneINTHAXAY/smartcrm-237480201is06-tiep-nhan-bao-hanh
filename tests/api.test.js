@@ -63,3 +63,9 @@ test('TC-10 C7: dữ liệu sai -> 400 kèm fields theo tên trường, không p
   // tác dụng phụ: không có dòng mới trong bảng ticket
   assert.equal(db.prepare('SELECT COUNT(*) AS n FROM ticket').get().n, soPhieuTruoc);
 });
+
+test('Đóng gói: GET /health kiểm cả CSDL -> 200 { status: "ok", db: "up" }, không cần đăng nhập', async () => {
+  const r = await goi('/health');
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.body, { status: 'ok', db: 'up' });
+});
