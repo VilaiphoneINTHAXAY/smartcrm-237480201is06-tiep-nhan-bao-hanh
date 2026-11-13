@@ -12,8 +12,9 @@
 | Test case trong báo cáo | **12** (TC-01 → TC-12) – 7 unit · 3 integration · 2 API |
 | Đủ 5 loại | luồng đúng ×5 · giá trị biên ×2 (hai phía một ranh giới) · dữ liệu sai ×3 · bảo mật ×1 · tái lập ×1 |
 | Lần chạy đầu (06/11/2026) | 11 PASS · **1 FAIL** (TC-11 → BUG-005, Critical) |
-| Sau khi sửa bug | **12/12 PASS**; cả bộ `npm test`: **53/53 PASS** |
-| Bug phát hiện khi kiểm thử BT3 | BUG-005 (Critical, từ TC-11) · BUG-006 (Major, từ tự kiểm OWASP A04) – đều đã sửa, xem `docs/bug-log.md` |
+| Sau khi sửa bug | **12/12 PASS**; cả bộ `npm test`: **62/62 PASS** (13/11/2026, cả trên máy và **bên trong container**: `docker compose exec app npm test`, ảnh `docker-npm-test-1.png`, `docker-npm-test-2.png`) |
+| Bug phát hiện khi kiểm thử BT3 | BUG-005 (Critical, từ TC-11) · BUG-006 (Major, từ tự kiểm OWASP A04) · BUG-007 (Minor, từ TC-11c) – đều đã sửa, xem `docs/bug-log.md` |
+| Hiệu năng (NFR-01, 02, 04) | Đo thật trên hệ thống chạy bằng Docker – **đạt cả ba**, xem mục cuối |
 
 ## Bảng test case (8 cột)
 
@@ -34,7 +35,7 @@
 
 **Ghi chú về "dữ liệu sai" ×3:** đề yêu cầu tối thiểu 2; TC-08 (định dạng – 400), TC-09 (vi phạm trạng thái nghiệp vụ – phiếu đang mở) và TC-10 (qua HTTP – 400 kèm tên trường) kiểm ba lớp khác nhau.
 
-## Truy vết: mỗi quy tắc có ít nhất một test (bộ 53 test)
+## Truy vết: mỗi quy tắc có ít nhất một test (bộ 62 test)
 
 | Quy tắc | Test case trong báo cáo | Test khác trong bộ (`tests/*.test.js`) |
 |---|---|---|
@@ -48,7 +49,29 @@
 | QT-13 không xoá vật lý | – | QT-13 xoá khách = ngừng sử dụng; QT-13 + QT-06 huỷ phiếu |
 | QT-15 che SĐT | – | QT-15 giá trị biên; QT-15 tra cứu; QT-15 nhân viên / Quản lý |
 | NFR-06 đăng nhập, phiên | – | chưa đăng nhập → 401; sai mật khẩu → 401; phiên đúng 30 phút / quá 30 phút |
-| A01 theo chủ sở hữu (S2) | TC-11 | TC-11b người tạo và Quản lý vẫn sửa được; A01 hồi quy PATCH trạng thái |
+| A01 theo chủ sở hữu (S2) | TC-11 | TC-11b người tạo và Quản lý vẫn sửa được; A01 hồi quy PATCH trạng thái; **TC-11c** API không gợi ý nút cho người không có quyền (BUG-007) |
 | A04 băm mật khẩu (S3) | – | A04 salt riêng; 2 test hồi quy BUG-006 |
 | C5 tái lập | TC-12 | Nâng cấp CSDL cũ giữ nguyên phiếu và lịch sử |
-| C7 / S4 lỗi gọn | TC-08, TC-10 | GWT-05 mô tả chỉ khoảng trắng; GWT-08 trong giao dịch không để lại thiết bị rác |
+| C7 / S4 lỗi gọn | TC-08, TC-10 | GWT-05 mô tả chỉ khoảng trắng; GWT-08 trong giao dịch không để lại thiết bị rác; `tests/bao-mat.test.js`: JSON hỏng, id kiểu tiêm SQL, CSDL hỏng → 500 thông báo chung |
+| Checklist bảo mật mục 5, 6 · cấu hình | – | `tests/bao-mat.test.js` (7 test): không X-Powered-By, log không chứa token/mật khẩu, `FRONTEND_ORIGIN='*'` bị từ chối |
+| Đóng gói (C1) | – | `/health` kiểm CSDL → 200 `ok / up`; 503 khi CSDL hỏng |
+
+## Đo chỉ tiêu hiệu năng (NFR-01, NFR-02, NFR-04) – phản hồi BT2 (TD-10)
+
+> Không phải kiểm thử tải đầy đủ (thuộc Chuyên đề tốt nghiệp 2) – chỉ đo thời gian phản hồi thật để trả lời "NFR đạt hay chưa" bằng số liệu.
+
+- **Cách đo:** `npm run do-nfr` (`scripts/do-nfr.js`) gọi HTTP thật vào hệ thống đang chạy bằng **Docker** (`http://localhost:3000`), đăng nhập `nv01`. Script tạo thêm 599 phiếu (thiết bị mới, IMEI ngẫu nhiên) để CSDL có **600 phiếu** (NFR-01 yêu cầu ≥ 500), đồng thời đo thời gian tạo từng phiếu (NFR-02); sau đó 100 lần tra cứu SĐT (NFR-01); cuối cùng 5 đợt × 20 request tạo phiếu **đồng thời** (NFR-04 rút gọn).
+- **Môi trường:** máy cá nhân Windows 11, Docker Desktop 4.99.0 (WSL 2), container `app` Node.js 24 + SQLite; client đo Node.js v24.20.0 trên cùng máy. Ngày đo: 13/11/2026 16:34. Ảnh: `docs/screenshots/nfr-do-hieu-nang.png`.
+
+| Chỉ tiêu (SRS BT1) | Phép đo | Số lần | TB (ms) | p50 (ms) | p95 (ms) | Max (ms) | Lỗi | Ngưỡng | Kết quả |
+|---|---|---|---|---|---|---|---|---|---|
+| NFR-01 tra cứu khách theo SĐT, CSDL ≥ 500 phiếu | `GET /api/customers?phone=0987654321`, CSDL 600 phiếu | 100 | 14.9 | 15.5 | **16.2** | 16.9 | 0 | p95 ≤ 2 000 ms | **ĐẠT** |
+| NFR-02 tạo phiếu (kiểm bảo hành, phân loại, SLA, ghi lịch sử) | `POST /api/tickets`, tuần tự | 599 | 19.1 | 16.1 | **31.2** | 50.2 | 0 | p95 ≤ 3 000 ms | **ĐẠT** |
+| (tham khảo) danh sách M2 | `GET /api/tickets`, trả cả 600 phiếu | 20 | 19.9 | 16.5 | 30.3 | 35.6 | 0 | – | – |
+| NFR-04 đồng thời, không lỗi, không trùng mã | 20 `POST /api/tickets` cùng lúc × 5 đợt | 100 | 136.9 | 133.2 | **239.6** | 262.2 | 0 | 0 lỗi, 0 mã trùng | **ĐẠT** (100/100 phiếu, 0 mã trùng) |
+
+**Nhận xét và giới hạn:**
+- Các số nhỏ hơn ngưỡng rất nhiều vì client và server cùng một máy (không có độ trễ mạng) và dữ liệu nhỏ; trên mạng thật thời gian sẽ lớn hơn nhưng vẫn còn nhiều dư địa.
+- NFR-04 mới kiểm **rút gọn**: 20 request đồng thời trong 5 đợt (vài giây), **chưa** chạy liên tục 5 phút với 20 người dùng ảo như SRS ghi – phần này để Chuyên đề tốt nghiệp 2. Không trùng mã phiếu vì SQLite ghi tuần tự và mã `BH-xxxx` sinh từ khoá chính trong cùng giao dịch.
+- `GET /api/tickets` trả toàn bộ phiếu (phân trang làm ở giao diện); 600 phiếu vẫn < 40 ms, nhưng khi dữ liệu lớn hơn nhiều cần phân trang ở API (ghi trong `docs/api-docs/README.md`, mục 7).
+- Dữ liệu đo nằm trong volume Docker; trước khi thử máy sạch đã xoá bằng `docker compose down -v`.
