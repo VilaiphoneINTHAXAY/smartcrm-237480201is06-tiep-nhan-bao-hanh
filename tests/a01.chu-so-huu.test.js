@@ -85,3 +85,30 @@ test('A01 hồi quy (BUG-005): nhân viên khác đổi trạng thái phiếu c�
   assert.equal(r.body.error, 'KHONG_DU_QUYEN');
   assert.equal(docPhieu(tao.body.data.id).status, 'MOI');
 });
+
+test('TC-11c A01 (BUG-007): nhân viên khác xem phiếu của nv01 -> không có bước chuyển nào, canEdit = false (M3 không hiện nút)', async () => {
+  const nv01 = await dangNhap('nv01');
+  const nv02 = await dangNhap('nv02');
+  const ql01 = await dangNhap('ql01');
+  const khach = (await goi('/api/customers?phone=0901234567', { token: nv01 })).body.data;
+  // thiết bị mới riêng cho test này (ba máy mẫu đã có phiếu mở từ các test trên)
+  const tao = await goi('/api/tickets', { method: 'POST', token: nv01, body: { issueDescription: 'Camera bị mờ',
+    device: { customerId: khach.id, modelName: 'Samsung Galaxy S23', serialNo: 'TC11CSN001', purchaseDate: '2026-05-01' } } });
+  assert.equal(tao.status, 201);
+  const id = tao.body.data.id;
+
+  // người KHÔNG có quyền sửa: API không được gợi ý nút nào cho giao diện
+  const xemNv02 = (await goi(`/api/tickets/${id}`, { token: nv02 })).body.data;
+  assert.deepEqual(xemNv02.allowedNextStatuses, []);
+  assert.equal(xemNv02.canEdit, false);
+  const dongTrongDanhSach = (await goi('/api/tickets', { token: nv02 })).body.data.find((p) => p.id === id);
+  assert.deepEqual(dongTrongDanhSach.allowedNextStatuses, []);
+
+  // người tạo phiếu và Quản lý vẫn thấy đủ bước chuyển (QT-06)
+  const xemNv01 = (await goi(`/api/tickets/${id}`, { token: nv01 })).body.data;
+  assert.deepEqual(xemNv01.allowedNextStatuses, ['DA_PHAN_CONG', 'DA_HUY']);
+  assert.equal(xemNv01.canEdit, true);
+  const xemQl = (await goi(`/api/tickets/${id}`, { token: ql01 })).body.data;
+  assert.deepEqual(xemQl.allowedNextStatuses, ['DA_PHAN_CONG', 'DA_HUY']);
+  assert.equal(xemQl.canEdit, true);
+});
