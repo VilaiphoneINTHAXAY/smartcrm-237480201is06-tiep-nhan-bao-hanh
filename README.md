@@ -7,12 +7,24 @@ Luồng **L2**: tra cứu khách theo SĐT → tạo phiếu bảo hành (IMEI/S
 
 **Ngoài phạm vi (WON'T):** phân công kỹ thuật viên (L4), tồn kho linh kiện (L5), khảo sát hài lòng (L8), gửi SMS/Zalo, ngày lễ trong SLA, triển khai/hạ tầng.
 
-## 2. Yêu cầu môi trường và cách chạy
+## 2. Chạy nhanh bằng Docker – đúng 2 lệnh (Bài tập 3, tag `v1.0`)
+
+Cần Docker Desktop (Windows/macOS) hoặc Docker Engine + Compose v2, cổng 3000 và 5173 trống. Ở thư mục gốc repo:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Kiểm tra: `docker compose ps` (hai dịch vụ `app`, `web` đều **healthy**) · `curl http://localhost:3000/health` → `{"status":"ok","db":"up"}` · `docker compose exec app npm test` → `fail 0` · giao diện http://localhost:5173, đăng nhập `nv01` / `Demo@123`.
+Hướng dẫn đầy đủ (tiếng Anh): [`docs/deployment-guide.md`](docs/deployment-guide.md) · API: [`docs/api-docs/`](docs/api-docs/README.md) · Checklist bảo mật: [`docs/checklist-bao-mat.md`](docs/checklist-bao-mat.md) · Test Report: [`docs/test-report.md`](docs/test-report.md) · Bug Log: [`docs/bug-log.md`](docs/bug-log.md).
+
+## 2b. Chạy không dùng Docker (môi trường phát triển)
 - **Node.js ≥ 22.13** (đã thử với Node.js 24 LTS) và npm đi kèm. Kiểm tra: `node -v`
 - **CSDL:** SQLite qua module có sẵn `node:sqlite` – **không cần cài máy chủ CSDL** (xem TD-04 trong `docs/thay-doi-thiet-ke.md`)
 - **Biến môi trường:** backend xem `.env.example` (`PORT`, `DB_PATH`, `SESSION_TIMEOUT_MINUTES`, `FRONTEND_ORIGIN`); giao diện xem `src/frontend/.env.example` (`VITE_API_BASE_URL`)
 
-### 2.1. Backend (API) – terminal thứ nhất, ở thư mục gốc của repo
+### 2b.1. Backend (API) – terminal thứ nhất, ở thư mục gốc của repo
 ```bash
 npm install                 # 1. cài thư viện theo package-lock.json
 cp .env.example .env        # 2. tạo tệp cấu hình (Windows PowerShell: Copy-Item .env.example .env)
@@ -21,7 +33,7 @@ npm test                    # 4. chạy bộ kiểm thử – tự dựng CSDL t
 npm start                   # 5. chạy API tại http://localhost:3000 (để terminal này chạy)
 ```
 
-### 2.2. Giao diện (M1–M3) – terminal thứ hai, backend phải đang chạy
+### 2b.2. Giao diện (M1–M3) – terminal thứ hai, backend phải đang chạy
 ```bash
 cd src/frontend             # 6. vào thư mục giao diện
 npm install                 # 7. cài React + Vite theo src/frontend/package-lock.json
@@ -34,9 +46,9 @@ npm run dev                 # 9. mở http://localhost:5173
 **Tài khoản mẫu** (chỉ có trong dữ liệu mẫu `seeds/`, mật khẩu demo `Demo@123`):
 `nv01` – nhân viên tiếp nhận (A1) · `ql01` – Quản lý TTBH (A2, được duyệt/từ chối bảo hành).
 
-### 2.3. Kiểm tra hệ thống đã chạy đúng
+### 2b.3. Kiểm tra hệ thống đã chạy đúng
 ```bash
-curl -s http://localhost:3000/health                      # {"status":"ok"}
+curl -s http://localhost:3000/health                      # {"status":"ok","db":"up"}
 curl -s http://localhost:3000/api/tickets                  # 401 CHUA_DANG_NHAP – API nghiệp vụ phải đăng nhập (NFR-06)
 npm run goi-thu                                            # (terminal khác, backend đang chạy) gọi API: 201 · 400 nêu tên trường · 409 PHIEU_DANG_MO
 ```
@@ -75,18 +87,14 @@ Trên giao diện: đăng nhập `nv01` / `Demo@123` → tab **Tạo phiếu b�
 
 > "Mở" không cần đăng nhập: ai cũng xem và chỉnh được bản sao trong draw.io. "Sửa" cần đăng nhập GitHub có quyền ghi vào repo; bấm Ủy quyền → Authorize, sửa xong File → Save để lưu thẳng về repo.
 
-## 5. Trạng thái hiện tại (buổi 12 – 30/10/2026)
-- [x] Ghi quyết định điều chỉnh thiết kế (`docs/thay-doi-thiet-ke.md`, TD-01 → TD-09), trong đó TD-06 sửa SLA theo nhận xét BT1 (QT-04: thứ Hai – thứ Bảy)
-- [x] Migration + dữ liệu mẫu; chạy lại lần hai không lỗi, không nhân đôi; mỗi migration chỉ chạy một lần (`schema_migration`)
-- [x] CRUD **khách hàng** và **phiếu bảo hành** qua 3 lớp routes → services → repositories; "xoá" là xoá mềm (QT-13)
-- [x] Quy tắc dạng hàm thuần: WarrantyRule (BR-02, BR-03), ClassificationRule (BR-04), SlaRule (BR-05, QT-04), PhoneRule (QT-02, QT-15)
-- [x] Vòng đời phiếu theo Hình 6.2 của case study (QT-06), có huỷ phiếu kèm lý do; thiết bị phải thuộc đúng khách (QT-03) và không có hai phiếu đang mở
-- [x] Đăng nhập, phiên 30 phút, phân quyền A1/A2: 401/403 (NFR-06)
-- [x] 47 kiểm thử PASS (có cả kiểm thử service bằng repository giả – tài liệu buổi 7, A5): luồng đúng · giá trị biên · dữ liệu sai
-- [x] Giao diện M1 Tạo phiếu · M2 Danh sách · M3 Chi tiết, mỗi màn hình có đang tải · rỗng · lỗi + Thử lại
-- [x] Phép thử clone vào thư mục trống và làm đúng README
-- [x] Ảnh chụp kết quả chạy trong `docs/`; nhật ký lỗi `docs/bug-log.md`
-- Ghi chú: dùng SQLite thay PostgreSQL vì máy chưa cài PostgreSQL (TD-04)
+## 5. Trạng thái hiện tại (Bài tập 3 – 13/11/2026, tag `v1.0`)
+- [x] Đóng gói Docker: `app` (Node 24 + SQLite trong volume, migrate + dữ liệu mẫu tự chạy) và `web` (Vite build + nginx); healthcheck `/health` kiểm cả CSDL; lên bằng 2 lệnh (TD-10, TD-12)
+- [x] Test Plan + Test Report 12 test case × 8 cột × 5 loại; cả bộ **62/62 PASS** (trên máy và trong container)
+- [x] Bug Log 7 lỗi; ba lỗi của BT3: BUG-005 (Critical), BUG-006 (Major), BUG-007 (Minor) – mỗi lỗi có test FAIL trước, commit sửa riêng
+- [x] Kiểm soát truy cập theo chủ sở hữu (A01) và băm mật khẩu salt riêng (A04); checklist bảo mật 7 mục có ảnh minh chứng
+- [x] Đo NFR-01, NFR-02, NFR-04 (rút gọn) trên hệ thống Docker – đạt cả ba (`npm run do-nfr`)
+- [x] Deployment Guide và API docs (19 endpoint, ví dụ chạy thật) bằng tiếng Anh; CI GitHub Actions (Node 22/24 + build giao diện)
+- Ghi chú: SQLite thay PostgreSQL (TD-04); không dùng JWT mà dùng token phiên phía máy chủ (TD-12)
 
 Quy ước commit: Conventional Commits – `feat`, `fix`, `docs`, `chore`, `refactor`, `test` (TD-03).
 

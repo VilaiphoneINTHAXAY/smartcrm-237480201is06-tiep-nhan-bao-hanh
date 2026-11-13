@@ -33,3 +33,22 @@ INTHAXAY Vilaiphone – 237480201IS06 – 09/10/2026
 Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ mã nguồn nộp ở Bài tập 2.
 
 INTHAXAY Vilaiphone – 237480201IS06 – 19/10/2026
+
+---
+
+# Bảng khai báo sử dụng công cụ AI – Bài tập 3 (buổi 13–16, 06/11 – 13/11/2026)
+
+| Công cụ | Dùng vào việc gì | Áp dụng ở tệp / hàm nào | Em đã kiểm chứng thế nào |
+|---|---|---|---|
+| Claude (Anthropic) – trợ lý AI dạng chat | Lập Test Plan, chọn 12 test case đủ 5 loại, gắn mã TC vào tên test; viết test A01 (TC-11, TC-11b, TC-11c) và A04 | `docs/test-plan.md`, `docs/test-report.md`, `tests/a01.chu-so-huu.test.js`, `tests/a04.mat-khau.test.js`, `package.json` (`npm run tc`) | Tự chạy từng TC bằng `npm run tc -- TC-xx` và chụp ảnh `docs/screenshots/TC-xx.png`; TC-11, A04, TC-11c **FAIL thật** lần đầu (ảnh FAIL) trước khi sửa |
+| Claude (Anthropic) | Tìm nguyên nhân và đề xuất bản sửa BUG-005 (kiểm người tạo phiếu), BUG-006 (salt ngẫu nhiên), BUG-007 (`canEdit`, ẩn nút ở M3) | `services/ticket.service.js` (`#chiNguoiTaoHoacQuanLy`), `security/password.js`, `migrate.js`, `services/ticket.contract.js`, `pages/TicketDetailPage.jsx` | Chạy lại test sau sửa → PASS, `npm test` 62/62; đăng nhập `nv02` trên giao diện Docker xác nhận M3 không còn nút (ảnh `BUG-007-M3-nv02.png`); đọc lại 7 dòng mỗi bug trong `docs/bug-log.md` |
+| Claude (Anthropic) | Viết Dockerfile (backend, giao diện), `nginx.conf`, `docker-compose.yml`, `.dockerignore`; `/health` kiểm CSDL | `Dockerfile`, `src/frontend/Dockerfile`, `src/frontend/nginx.conf`, `docker-compose.yml`, `.dockerignore`, `src/backend/app.js` | Em tự cài Docker Desktop (WSL 2, winget), chạy `docker compose up -d --build` trên máy: hai dịch vụ **healthy**, `/health` ok, `docker compose exec app npm test` 62/62, tạo phiếu BH-0001 qua giao diện (ảnh `docker-*.png`) |
+| Claude (Anthropic) | Rà checklist bảo mật 7 mục; viết kiểm cấu hình khởi động, log an toàn và test kèm theo; gợi ý `npm audit fix` | `src/backend/config.js`, `src/backend/security/log.js`, `src/backend/server.js`, `tests/bao-mat.test.js`, `docs/checklist-bao-mat.md` | Em tự chạy từng lệnh trong checklist (`git log -- .env`, 3 lệnh `git grep`, `npm audit` trước/sau, `docker compose logs app`) và chụp ảnh `sec-1` → `sec-7b`; đọc từng dòng `git grep` để xác nhận an toàn |
+| Claude (Anthropic) | Viết Deployment Guide và API docs bằng tiếng Anh; script lấy ví dụ request/response từ một lần chạy thật | `docs/deployment-guide.md`, `docs/api-docs/*.md` | Đối chiếu bảng endpoint với `routes/*.js` (19 endpoint, không thừa không thiếu); làm theo Guide trên máy em; thử máy sạch trước khi gắn tag |
+| Claude (Anthropic) | Script đo NFR-01, NFR-02, NFR-04 rút gọn | `scripts/do-nfr.js`, `npm run do-nfr` | Em chạy trên hệ thống Docker của mình, số trong Test Report chép đúng từ ảnh `nfr-do-hieu-nang.png` |
+| Claude (Anthropic) | Hướng dẫn cài Docker Desktop khi gặp lỗi .NET; dịch tài liệu buổi 13–16 sang tiếng Lào để em hiểu đề | – | Em tự thao tác cài đặt trên máy, tự chạy mọi lệnh và tự commit, push |
+| — không dùng — | Cài đặt phần mềm, chạy lệnh, chụp ảnh màn hình, commit, push, gắn tag | Lịch sử commit nhánh `dev` / `main` | Không áp dụng |
+
+Tôi xác nhận đã đọc, hiểu và chịu trách nhiệm về toàn bộ nội dung nộp ở Bài tập 3.
+
+INTHAXAY Vilaiphone – 237480201IS06 – 13/11/2026
