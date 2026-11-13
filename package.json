@@ -12,7 +12,8 @@
     "migrate": "node --env-file-if-exists=.env src/backend/migrate.js",
     "test": "node --test",
     "tc": "node --test --test-name-pattern",
-    "goi-thu": "node --env-file-if-exists=.env scripts/goi-thu-api.js"
+    "goi-thu": "node --env-file-if-exists=.env scripts/goi-thu-api.js",
+    "do-nfr": "node --env-file-if-exists=.env scripts/do-nfr.js"
   },
   "repository": {
     "type": "git",
